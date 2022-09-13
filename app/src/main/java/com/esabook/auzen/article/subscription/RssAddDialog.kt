@@ -2,13 +2,13 @@ package com.esabook.auzen.article.subscription
 
 import android.content.Context
 import android.view.LayoutInflater
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.App
 import com.esabook.auzen.data.api.Api
 import com.esabook.auzen.data.db.entity.RssEntity
 import com.esabook.auzen.databinding.RssAddDialogBinding
 import com.esabook.auzen.extentions.*
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class RssAddDialog(context: Context) : AlertDialog(context) {
+class RssAddDialog(context: Context) : BottomSheetDialog(context) {
 
     var binding: RssAddDialogBinding? = null
 

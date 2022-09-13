@@ -40,7 +40,7 @@ val weekDaysINDShort = arrayOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
 
 fun getSimpleDateFormatIndo(pattern: String): SimpleDateFormat {
     val sdf = SimpleDateFormat(pattern, Locale.getDefault())
-    sdf.isLenient = false
+    sdf.isLenient = true
 
     val dfs = sdf.dateFormatSymbols
     dfs.months = longMonthNamesIndo
@@ -59,31 +59,31 @@ fun getSimpleDateFormatIndo(pattern: String): SimpleDateFormat {
  * 5. beda tahun, DD MMM YYYY (contoh 11 Mei 2020)
  */
 
-fun Date.relativeLocalizeDateIndo(): String {
-    val milliseconds = time - System.currentTimeMillis()
-    val positiveValue = abs(milliseconds)
-    val now = Date().time
-
-    val prePostSuffix = if (time > now) "lagi" else "yang lalu"
-    return when {
-        this.year != Date().year -> getSimpleDateFormatIndo("dd MMM yyyy").format(this)
-        positiveValue > DateUtils.WEEK_IN_MILLIS -> getSimpleDateFormatIndo("dd MMM").format(this)
-        positiveValue > DateUtils.DAY_IN_MILLIS -> "${TimeUnit.MILLISECONDS.toDays(positiveValue)} hari $prePostSuffix"
-        positiveValue > DateUtils.HOUR_IN_MILLIS -> "${
-            abs(
-                (TimeUnit.MILLISECONDS.toMinutes(
-                    positiveValue
-                ) / 90).toInt()
-            ) + 1
-        } jam $prePostSuffix"
-        positiveValue > DateUtils.MINUTE_IN_MILLIS -> "${
-            TimeUnit.MILLISECONDS.toMinutes(
-                positiveValue
-            )
-        } menit $prePostSuffix"
-        else -> "Baru saja"
-    }
-}
+//fun Date.relativeLocalizeDateIndo(): String {
+//    val milliseconds = time - System.currentTimeMillis()
+//    val positiveValue = abs(milliseconds)
+//    val now = Date().time
+//
+//    val prePostSuffix = if (time > now) "lagi" else "yang lalu"
+//    return when {
+//        this.year != Date().year -> getSimpleDateFormatIndo("dd MMM yyyy").format(this)
+//        positiveValue > DateUtils.WEEK_IN_MILLIS -> getSimpleDateFormatIndo("dd MMMM").format(this)
+//        positiveValue > DateUtils.DAY_IN_MILLIS -> "${TimeUnit.MILLISECONDS.toDays(positiveValue)} hari $prePostSuffix"
+//        positiveValue > DateUtils.HOUR_IN_MILLIS -> "${
+//            abs(
+//                (TimeUnit.MILLISECONDS.toMinutes(
+//                    positiveValue
+//                ) / 90).toInt()
+//            ) + 1
+//        } jam $prePostSuffix"
+//        positiveValue > DateUtils.MINUTE_IN_MILLIS -> "${
+//            TimeUnit.MILLISECONDS.toMinutes(
+//                positiveValue
+//            )
+//        } menit $prePostSuffix"
+//        else -> "Baru saja"
+//    }
+//}
 
 /**
  * hari ini
@@ -97,8 +97,7 @@ fun Date.relativeLocalizeDate2DayIndo(): String {
 
     val prePostSuffix = if (time > now) "lagi" else "yang lalu"
     return when {
-        positiveValue > DateUtils.WEEK_IN_MILLIS * 4 -> getSimpleDateFormatIndo("EEEE, dd MMM yyyy").format(this)
-        positiveValue > DateUtils.WEEK_IN_MILLIS -> getSimpleDateFormatIndo("dd MMM").format(this)
+        positiveValue > DateUtils.WEEK_IN_MILLIS -> this.toStringWithPattern("EEEE, dd MMM yyyy")
         positiveValue > DateUtils.DAY_IN_MILLIS -> "${TimeUnit.MILLISECONDS.toDays(positiveValue)} hari $prePostSuffix"
         else -> "Hari ini"
     }

@@ -2,21 +2,14 @@ package com.esabook.auzen.article.feeds.pager
 
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.RecyclerView
 import com.esabook.auzen.databinding.FeedHeaderViewHolderBinding
-import com.esabook.auzen.extentions.layoutInflater
+import com.esabook.auzen.ui.ViewHolder
 
-class FeedItemHeaderViewHolder(
-    parent: ViewGroup,
-    private val v: FeedHeaderViewHolderBinding = FeedHeaderViewHolderBinding.inflate(
-        parent.layoutInflater(),
-        parent,
-        false
-    )
-) : RecyclerView.ViewHolder(v.root) {
+class FeedItemHeaderViewHolder(parent: ViewGroup) :
+    ViewHolder<FeedHeaderViewHolderBinding>(parent, FeedHeaderViewHolderBinding::inflate) {
 
     fun setData(label: String?) {
-        v.tvDateIndicator.text = label
-        v.root.isVisible = true
+        binding.tvDateIndicator.text = label
+        binding.root.isVisible = true
     }
 }

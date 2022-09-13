@@ -17,7 +17,7 @@ class FeedPagerAdapter(
     private val queryFlow: MutableStateFlow<String?>
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {
     val tabs = listOf(
-        Tab(PLAYLIST, title = null, R.drawable.ic_round_playlist,"Daftar putar"),
+        Tab(PLAYLIST, title = null, R.drawable.ic_round_headset, "Daftar putar"),
         Tab(ALL, "Semua", null, selected = true),
         Tab(UNREAD, "Belum Baca", null),
         Tab(READ, "Terbaca", null),

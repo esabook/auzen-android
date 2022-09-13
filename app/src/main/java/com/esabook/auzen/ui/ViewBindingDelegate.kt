@@ -6,20 +6,22 @@ import androidx.viewbinding.ViewBinding
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-inline fun <reified T : ViewBinding> ViewGroup.viewBinding() = ViewBindingDelegate(T::class.java, this)
+inline fun <reified T : ViewBinding> ViewGroup.viewBinding(noinline inflater: (LayoutInflater, ViewGroup, Boolean) -> T) =
+    ViewBindingDelegate(inflater, this)
+
+inline fun <T : ViewBinding> ViewGroup.viewBindingInflate(inflater: (LayoutInflater, ViewGroup, Boolean) -> T) =
+    inflater.invoke(LayoutInflater.from(context), this, false)
 
 class ViewBindingDelegate<T : ViewBinding>(
-    private val bindingClass: Class<T>,
-    val fragment: ViewGroup
+    private val inflater: (LayoutInflater, ViewGroup, Boolean) -> T,
+    val viewGroup: ViewGroup
 ) : ReadOnlyProperty<ViewGroup, T> {
     private var binding: T? = null
 
     override fun getValue(thisRef: ViewGroup, property: KProperty<*>): T {
         binding?.let { return it }
 
-        val inflateMethod = bindingClass.getMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java)
-        @Suppress("UNCHECKED_CAST")
-        binding = inflateMethod.invoke(null, LayoutInflater.from(thisRef.context), thisRef) as T
+        binding = thisRef.viewBindingInflate(inflater)
         return binding!!
     }
 }

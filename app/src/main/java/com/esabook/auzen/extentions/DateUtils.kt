@@ -29,5 +29,10 @@ fun String.toDate(vararg patterns: String = defaultDatePatterns): Date? {
 
 @SuppressLint("SimpleDateFormat")
 fun Date.toStringWithPattern(patterns: String = defaultDatePatterns[0]): String {
-    return SimpleDateFormat(patterns).format(this)
+    return try {
+        getSimpleDateFormatIndo(patterns).format(this)
+    } catch (e: Exception) {
+        Timber.e(e)
+        toString()
+    }
 }

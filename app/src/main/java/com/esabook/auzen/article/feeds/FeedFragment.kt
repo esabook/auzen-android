@@ -5,7 +5,6 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -33,12 +32,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import kotlin.math.abs
 
 class FeedFragment : Fragment(R.layout.feed_fragment) {
 
     private val model: FeedVM by activityViewModels()
-    private val binding: FeedFragmentBinding by viewBinding()
+    private val binding by viewBinding(FeedFragmentBinding::bind)
 
     private lateinit var pagerAdapter: FeedPagerAdapter
 
@@ -98,8 +96,9 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
 
             binding.tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab?) {
-                    if (tab == null) return
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    binding.viewpager.setCurrentItem(tab.position, true)
+
                     val tabs = pagerAdapter.tabs[tab.position]
                     if (tabs.id == FeedFilterType.DUMMY) {
                         RssAddDialog(requireContext()).show()
@@ -107,14 +106,13 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                         return
                     }
 
-                    binding.viewpager.setCurrentItem(tab.position, true)
-                    binding.tvHead.setTextAnimation(tab.contentDescription)
+
+                    binding.tvHead.setTextAnimation(tabs.desc)
                     model.tabPosition = tab.position
 
                     val bundleKey = FeedPagerFragment.getItemCountKey(tabs.id)
                     val itemCount = bundle.getInt(bundleKey)
                     model.totalItemFlow.tryEmit(itemCount)
-
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -129,13 +127,14 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     binding.tab.selectTab(binding.tab.getTabAt(position), true)
-                    val allowSlideH = position == 0
-                    binding.viewpager.isUserInputEnabled = allowSlideH
+//                    val allowSlideH = position == 0
+//                    binding.viewpager.isUserInputEnabled = allowSlideH
                 }
 
             })
 
-            binding.viewpager.currentItem = 1
+
+            binding.tab.selectTab(binding.tab.getTabAt(model.tabPosition), true)
 
             childFragmentManager.setFragmentResultListener(
                 FeedPagerFragment.RESULT_KEY,
@@ -157,8 +156,8 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 val alpha = 1f - offsetAsAlpha
                 binding.gHeader.alpha = alpha
 
-                if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
-                    binding.searchParent.isInvisible = true
+                if (binding.searchBar.isVisible && alpha < .5F) {
+                    binding.searchParent.isGone = true
                     binding.searchBar.isIconified = true
                 }
             }

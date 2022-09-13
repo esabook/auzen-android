@@ -10,16 +10,14 @@ import timber.log.Timber
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-inline fun <reified T : ViewBinding> Fragment.viewBinding() =
-    FragmentViewBindingDelegate(T::class.java, this)
+inline fun <reified T : ViewBinding> Fragment.viewBinding(noinline bind: (View) -> T) =
+    FragmentViewBindingDelegate(bind, this)
 
 class FragmentViewBindingDelegate<T : ViewBinding>(
-    bindingClass: Class<T>,
+    private val bindMethod: (View) -> T,
     val fragment: Fragment
 ) : ReadOnlyProperty<Fragment, T>, LifecycleEventObserver {
     private var binding: T? = null
-
-    private val bindMethod = bindingClass.getMethod("bind", View::class.java)
 
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         binding?.let { return it }
@@ -34,7 +32,7 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
         }
 
         @Suppress("UNCHECKED_CAST")
-        binding = bindMethod.invoke(null, thisRef.requireView()) as T
+        binding = bindMethod.invoke(thisRef.requireView())
         return binding!!
     }
 

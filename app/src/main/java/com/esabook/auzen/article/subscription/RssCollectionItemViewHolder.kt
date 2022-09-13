@@ -3,29 +3,23 @@ package com.esabook.auzen.article.subscription
 import android.view.ViewGroup
 import androidx.core.text.parseAsHtml
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.RecyclerView
 import com.esabook.auzen.R
 import com.esabook.auzen.data.db.entity.RssEntity
 import com.esabook.auzen.databinding.RssViewHolderBinding
-import com.esabook.auzen.extentions.layoutInflater
 import com.esabook.auzen.extentions.loadImageWithGlide
+import com.esabook.auzen.ui.ViewHolder
 
-class RssCollectionItemViewHolder(
-    parent: ViewGroup,
-    private val v: RssViewHolderBinding = RssViewHolderBinding.inflate(
-        parent.layoutInflater(),
-        parent,
-        false
-    )
-) : RecyclerView.ViewHolder(v.root) {
+class RssCollectionItemViewHolder(parent: ViewGroup) :
+    ViewHolder<RssViewHolderBinding>(parent, RssViewHolderBinding::inflate) {
 
-    fun getBinding() = v
+    fun getBinding() = binding
 
     fun setData(data: RssEntity) {
-
+        val v = binding
         v.title.text = data.title
 
-        val autoSyncImg = if (data.muteAutoSync) R.drawable.ic_round_sync_disabled else R.drawable.ic_round_sync
+        val autoSyncImg =
+            if (data.muteAutoSync) R.drawable.ic_round_sync_disabled else R.drawable.ic_round_sync
         v.btMute.setImageResource(autoSyncImg)
 
         val favicon = data.favicon ?: "https://www.google.com/s2/favicons?domain=${data.link}&sz=96"

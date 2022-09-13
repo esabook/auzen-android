@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class FeedVM : ViewModel() {
 
-    var tabPosition = -1
+    var tabPosition = 1
 
     val onquery: SearchView.OnQueryTextListener = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {

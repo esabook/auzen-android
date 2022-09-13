@@ -42,9 +42,10 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
     companion object {
         const val PAYLOAD_LINK = "payload_link"
+        const val FONT_NAME_KEY = "font_name_key"
     }
 
-    private val binding: ReadFragmentBinding? by viewBinding()
+    private val binding by viewBinding(ReadFragmentBinding::bind)
     private val model: ReadVM by viewModels()
     private lateinit var progressDialog: ProgressDialog
 
@@ -52,7 +53,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         context?.getSharedPreferences("ReadFragment", Context.MODE_PRIVATE)
     }
 
-    private val FONT_NAME_KEY = "font_name_key"
+
 
     private var selectedFontName: String? = null
         get() = pref?.getString(FONT_NAME_KEY, null)
@@ -72,7 +73,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     }
 
     var renderJob: Job? = null
-    private fun renderArticle() = binding?.let { b ->
+    private fun renderArticle() = binding.let { b ->
         b.web.stopLoading()
         b.progressHorizontal.show()
         renderJob?.cancel()
@@ -115,7 +116,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         withContext(Dispatchers.IO) {
             val content = model.getHtmlContent(article, articleEntity)
             withContext(Dispatchers.Main) {
-                binding?.web?.loadDataWithBaseURL(
+                binding.web.loadDataWithBaseURL(
                     article.uri,
                     content,
                     "text/html",
@@ -141,7 +142,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     }
 
     @SuppressLint("RestrictedApi")
-    private fun initView() = binding?.let { b ->
+    private fun initView() = binding.let { b ->
 
         model.article.observe(viewLifecycleOwner) {
             if (it?.uri != b.web.url) {
@@ -277,9 +278,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         }
 
 
-        (b.toolbar.menu as? MenuBuilder)?.let {
-            it.setOptionalIconsVisible(true)
-        }
+        (b.toolbar.menu as? MenuBuilder)?.setOptionalIconsVisible(true)
 
         b.toolbar.setOnMenuItemClickListener {
             val url = model.articleEntity?.link ?: return@setOnMenuItemClickListener false
@@ -332,10 +331,10 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
                 b.btPlay2.setImageResource(R.drawable.ic_baseline_play_arrow)
         }
 
-        binding?.web?.addOnScrollChanged(this::onWebScrollListener)
+        binding.web.addOnScrollChanged(this::onWebScrollListener)
     }
 
-    private fun renderToolbar(url: String?) = binding?.let { b ->
+    private fun renderToolbar(url: String?) = binding.let { b ->
         val uri = url?.toHttpUrlOrNull()
         val mUrl = NewsParserUtils.getFaviconUrl(url ?: "")
 
@@ -362,10 +361,10 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
     override fun onDestroyView() {
         try {
-            binding?.web?.stopLoading()
-            binding?.web?.loadUrl("about:blank")
-            binding?.web?.removeAllViews()
-            binding?.web?.destroy()
+            binding.web.stopLoading()
+            binding.web.loadUrl("about:blank")
+            binding.web.removeAllViews()
+            binding.web.destroy()
         } catch (e: Exception) {
             Timber.e(e)
         }
@@ -375,7 +374,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
     private fun onWebScrollListener(x: Int, y: Int, oldx: Int, oldy: Int) {
         try {
-            if (binding?.web?.canScrollVertically(1)?.not() == true)
+            if (binding.web.canScrollVertically(1).not())
                 model.markUnRead(false)
         } catch (e: Exception) {
             Timber.e(e)

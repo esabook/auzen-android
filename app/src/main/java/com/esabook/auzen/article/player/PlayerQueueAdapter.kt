@@ -29,21 +29,24 @@ class PlayerQueueAdapter : ListAdapter<ArticleEntity, PlayerQueueItemViewHolder>
         holder.setData(payload)
         holder.itemView.setOnClickListener { onClick(holder, position, payload) }
         holder.itemView.setOnLongClickListener {
-            holder.v.tvHintReorder.apply {
-                isVisible = true
-                alpha = 0F
-                animate()
-                    .alpha(1F)
-                    .setDuration(300)
-                    .start()
+            holder.binding.let { v ->
+                v.tvHintReorder.apply {
+                    isVisible = true
+                    alpha = 0F
+                    animate()
+                        .alpha(1F)
+                        .setDuration(300)
+                        .start()
+                }
+
+                val lastColor = v.root.cardBackgroundColor
+                v.root.setCardBackgroundColor(it.resources.getClr(R.color.purple_100))
+                v.tvHintReorder.post2(1000) {
+                    isGone = true
+                    v.root.setCardBackgroundColor(lastColor)
+                }
             }
 
-            val lastColor = holder.v.root.cardBackgroundColor
-            holder.v.root.setCardBackgroundColor(it.resources.getClr(R.color.purple_100))
-            holder.v.tvHintReorder.post2(1000) {
-                isGone = true
-                holder.v.root.setCardBackgroundColor(lastColor)
-            }
             return@setOnLongClickListener true
         }
 

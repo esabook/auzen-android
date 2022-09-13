@@ -4,28 +4,27 @@ import android.view.ViewGroup
 import androidx.core.text.parseAsHtml
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.RecyclerView
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.PlayerQueueItemViewHolderBinding
 import com.esabook.auzen.extentions.*
+import com.esabook.auzen.ui.ViewHolder
 
-class PlayerQueueItemViewHolder(
-    parent: ViewGroup,
-    val v: PlayerQueueItemViewHolderBinding = PlayerQueueItemViewHolderBinding.inflate(
-        parent.layoutInflater(),
-        parent,
-        false
-    )
-) : RecyclerView.ViewHolder(v.root) {
+class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemViewHolderBinding>(
+    parent,
+    PlayerQueueItemViewHolderBinding::inflate
+) {
 
     fun setData(data: ArticleEntity) {
         itemView.postInvalidate()
+        val v = binding
         v.tvTitle.text = data.title?.removeNewLine()?.parseAsHtml()?.removeDebris()
-        v.tvPublishDate.text = data.pubDate?.toDate()?.relativeLocalizeDateIndo() ?: ""
+        v.tvPublishDate.text =
+            data.pubDate?.toDate()?.toStringWithPattern("EEEE, dd MMMM yyyy '|' HH:mm") ?: ""
         v.tvSource.text = data.sourceTitle
 
         if (data.enclosure != null) {
-            v.ivThumbnail.loadImageWithGlide(data.enclosure,
+            v.ivThumbnail.loadImageWithGlide(
+                data.enclosure,
                 onFail = {
                     isGone = true
                 },

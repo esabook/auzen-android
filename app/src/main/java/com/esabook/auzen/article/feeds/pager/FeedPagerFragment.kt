@@ -34,7 +34,7 @@ import timber.log.Timber
 
 class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
-    private val binding: FeedPagerFragmentBinding by viewBinding()
+    private val binding by viewBinding(FeedPagerFragmentBinding::bind)
     private val model: FeedPagerVM by viewModels()
     private lateinit var progressDialog: ProgressDialog
 
