@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/sc_reader_theme"
+        android:title="@string/theme"
+        android:icon="@drawable/ic_font_art"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/sc_readibility_mode"
+        android:icon="@drawable/ic_baseline_book"
+        android:title="@string/change_read_mode"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/sc_open_browser"
+        android:icon="@drawable/ic_round_open_in_browser"
+        android:title="@string/open_external_browser" />
+
+    <item
+        android:id="@+id/sc_share_link_external"
+        android:icon="@drawable/ic_round_share"
+        android:title="@string/share_link" />
+
+    <item
+        android:id="@+id/sc_copy_link"
+        android:icon="@drawable/ic_round_content_copy"
+        android:title="@string/copy_link" />
+
+</menu>

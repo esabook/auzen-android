@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed|snapMargins"
+            app:toolbarId="@id/g_toolbar">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/g_header"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="?actionBarSize"
+                android:paddingTop="@dimen/dp_38"
+                android:animateLayoutChanges="true"
+                app:layout_collapseMode="none">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_head"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dp_48"
+                    android:layout_marginBottom="90dp"
+                    tools:text="Semua"
+                    android:textColor="@color/black_80"
+                    android:textSize="@dimen/dp_28"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_head_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="0 Item"
+                    android:textColor="@color/black_80"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/tv_head"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_head" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/search_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    app:cardBackgroundColor="@color/black_10"
+                    app:cardElevation="0px"
+                    android:clipToPadding="false"
+                    app:contentPadding="0px"
+                    android:clipChildren="false"
+                    app:cardUseCompatPadding="false"
+                    app:cardPreventCornerOverlap="false"
+                    android:layout_marginHorizontal="@dimen/dp_32"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:shapeAppearance="@style/ShapeRounded"
+                    tools:visibility="visible">
+
+                    <androidx.appcompat.widget.SearchView
+                        android:id="@+id/search_bar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/transparent"
+                        app:queryBackground="@android:color/transparent"
+                        app:closeIcon="@drawable/ic_round_close"
+                        app:iconifiedByDefault="true"
+                        app:queryHint="Cari berita"
+                        app:searchHintIcon="@null"
+                        app:searchIcon="@drawable/ic_round_search" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/g_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical"
+                app:layout_collapseMode="pin">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_38"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:menu="@menu/feed_menu"
+                    app:navigationIcon="@drawable/ic_reader_home">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/dp_24"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_logo_name" />
+                </androidx.appcompat.widget.Toolbar>
+
+                <com.esabook.auzen.article.player.PlayerFrameLayout
+                    android:id="@+id/player_fl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="@dimen/dp_16" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingRight="@dimen/dp_24"
+            android:text="@string/feeds_title_page"
+            android:textColor="@color/black_80"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_scrollFlags="scroll|snap"
+            app:tabContentStart="0px"
+            app:tabGravity="start"
+            app:tabIconTint="@color/tab_icon_tint"
+            app:tabIndicator="@drawable/tab_indicator"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorFullWidth="false"
+            app:tabIndicatorGravity="bottom"
+            app:tabIndicatorHeight="@dimen/dp_2"
+            app:tabInlineLabel="true"
+            app:tabMinWidth="@dimen/dp_12"
+            app:tabMode="scrollable"
+            app:tabRippleColor="@color/black_05"
+            app:tabSelectedTextColor="@color/black_80"
+            app:tabTextAppearance="@style/TextAppearance.Material3.LabelLarge"
+            app:tabTextColor="@color/black_10"
+            app:tabUnboundedRipple="true">
+
+            <!--                <com.google.android.material.tabs.TabItem-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:contentDescription="tab_playlist"-->
+            <!--                    android:icon="@drawable/ic_round_playlist" />-->
+
+            <!--                <com.google.android.material.tabs.TabItem-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:contentDescription="tab_all"-->
+            <!--                    android:text="Semua" />-->
+
+            <!--                <com.google.android.material.tabs.TabItem-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:contentDescription="tab_unread"-->
+            <!--                    android:text="Baru" />-->
+
+            <!--                <com.google.android.material.tabs.TabItem-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:contentDescription="tab_read"-->
+            <!--                    android:text="Terbaca" />-->
+
+            <!--                <com.google.android.material.tabs.TabItem-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:icon="@drawable/ic_round_add"-->
+            <!--                    android:contentDescription="tab_add"-->
+            <!--                    android:text="Tambah" />-->
+
+        </com.google.android.material.tabs.TabLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+    </androidx.viewpager2.widget.ViewPager2>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

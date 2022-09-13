@@ -1,0 +1,126 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.esabook.auzen"
+        minSdk 21
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/roomSchemas".toString())
+            }
+        }
+    }
+    signingConfigs {
+        release {
+            storeFile file('../signature/release.jks')
+            storePassword 'sepasang32'
+            keyAlias 'key0'
+            keyPassword 'sepasang32'
+        }
+
+        config {
+            enableV1Signing true
+            enableV2Signing true
+            enableV3Signing true
+            enableV4Signing true
+        }
+    }
+
+    buildTypes {
+        release {
+            shrinkResources true
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = new File(outputFileName.replace(".apk", "-${defaultConfig.versionName}.apk"))
+        }
+    }
+}
+
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
+
+    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.paging:paging-runtime:3.1.1"
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+
+    implementation 'com.google.android.material:material:1.6.1'
+
+    implementation 'net.dankito.readability4j:readability4j:1.0.8'
+    implementation 'com.airbnb.android:lottie:5.2.0'
+
+
+    implementation(platform('com.squareup.okhttp3:okhttp-bom:5.0.0-alpha.10'))
+    implementation "com.squareup.okhttp3:okhttp-coroutines-jvm:5.0.0-alpha.10"
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
+
+    implementation 'org.jsoup:jsoup:1.15.3'
+
+
+    def room_version = "2.4.3"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-paging:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    implementation 'com.rometools:rome:1.18.0'
+
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    
+    implementation 'com.iqiyi.xcrash:xcrash-android-lib:3.1.0'
+    implementation 'com.squareup.leakcanary:plumber-android:2.9.1'
+
+
+    // debug tool
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
+
+
+    // test
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

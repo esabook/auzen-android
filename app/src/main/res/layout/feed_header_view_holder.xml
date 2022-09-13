@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="gone"
+    tools:visibility="visible"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
+    android:paddingVertical="@dimen/dp_4">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_date_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_48"
+        style="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:textStyle="bold"
+        tools:text="Today"
+        android:textColor="@color/dark_yellow_60" />
+</FrameLayout>

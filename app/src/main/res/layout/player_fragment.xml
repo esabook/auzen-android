@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_drag_handle"
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="@dimen/dp_4"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/dp_12"
+            app:shapeAppearance="@style/ShapeRounded"
+            app:srcCompat="@color/black_10" />
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_drag_handle"
+            android:layout_marginVertical="@dimen/dp_4"
+            app:closeIcon="@drawable/ic_round_close"
+            app:iconifiedByDefault="false"
+            app:queryHint="Cari berita"
+            app:searchHintIcon="@null"
+            app:searchIcon="@drawable/ic_round_search" />
+
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progress_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_4"
+            android:layout_below="@id/search_bar"
+            android:indeterminate="true"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_data"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/g_bottom"
+            android:layout_below="@id/search_bar"
+            android:minHeight="@dimen/dp_60"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/search_bar"
+            tools:itemCount="14"
+            tools:listitem="@layout/feed_view_holder" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/g_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/bottom_space"
+            android:background="@color/black_10"
+            android:elevation="@dimen/dp_12"
+            android:paddingTop="@dimen/dp_8"
+            android:translationZ="@dimen/dp_12">
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slide_reader_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/dp_12"
+                android:stepSize=".25"
+                android:value="1"
+                android:valueFrom=".25"
+                android:valueTo="2"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/bt_play"
+                app:tickColor="@color/black_80"
+                app:trackColorActive="@color/black_60"
+                app:trackColorInactive="@color/black_10"
+                app:trackHeight="@dimen/dp_6"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:ellipsize="end"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="4"
+                android:paddingHorizontal="@dimen/dp_12"
+                android:paddingTop="@dimen/dp_8"
+                android:paddingBottom="@dimen/dp_12"
+                android:visibility="gone"
+                app:drawableRightCompat="@drawable/ic_round_unfold_more"
+                app:layout_constraintBottom_toTopOf="@id/slide_reader_speed"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:text="title"
+                tools:visibility="visible" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/dp_16"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/dp_4"
+                app:cardElevation="0px"
+                app:layout_constraintBottom_toBottomOf="@+id/bt_play"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/bt_play">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_speech_speed_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingVertical="@dimen/dp_4"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:paddingHorizontal="@dimen/dp_16"
+                    tools:text="1x"
+                    android:textColor="@color/black_80"
+                    android:textStyle="bold" />
+
+            </androidx.cardview.widget.CardView>
+
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/bt_play"
+                android:layout_width="@dimen/dp_48"
+                android:layout_height="@dimen/dp_48"
+                android:layout_marginRight="@dimen/dp_8"
+                android:layout_marginBottom="@dimen/dp_24"
+                android:background="?selectableItemBackgroundBorderless"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:srcCompat="@drawable/ic_baseline_play_arrow"
+                app:tint="@color/black_80"
+                app:tooltipText="@string/reading_speech_control" />
+
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_circular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_8"
+                android:indeterminate="false"
+                android:max="100"
+                app:indicatorInset="0px"
+                app:indicatorSize="@dimen/dp_48"
+                app:layout_constraintBottom_toBottomOf="@id/bt_play"
+                app:layout_constraintLeft_toLeftOf="@id/bt_play"
+                app:layout_constraintRight_toRightOf="@id/bt_play"
+                app:layout_constraintTop_toTopOf="@id/bt_play"
+                app:trackColor="#4CAF50"
+                app:trackCornerRadius="@dimen/dp_2"
+                app:trackThickness="@dimen/dp_4" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/bt_setting"
+                android:layout_width="@dimen/dp_24"
+                android:layout_height="@dimen/dp_24"
+                android:layout_marginLeft="@dimen/dp_24"
+                android:background="?selectableItemBackgroundBorderless"
+                app:layout_constraintBottom_toBottomOf="@id/bt_play"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/bt_play"
+                app:srcCompat="@drawable/ic_round_settings"
+                app:tint="@color/black_80"
+                app:tooltipText="Pengatura TTS" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Space
+            android:id="@+id/bottom_space"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">auzen</string>
+    <string name="add_article_source">Tambah Sumber Berita</string>
+    <string name="rss_count_available_or_unread"><![CDATA[%1d/<b>%1d</b>]]></string>
+    <string name="feeds_title_page">Semua</string>
+    <string name="feeds_num_item_berita">%1d berita</string>
+    <string name="open_external_browser">Buka di peramban</string>
+    <string name="play_or_pause">Play/Pause</string>
+    <string name="stop_reading">Stop reading</string>
+    <string name="copy_link">Salin tautan</string>
+    <string name="share_link">Bagikan link</string>
+    <string name="mark_as_read">Tandai telah dibaca</string>
+    <string name="mark_as_unread">Tandai belum dibaca</string>
+    <string name="reading_speech_control">Kontrol mulai baca</string>
+    <string name="add_to_speech_queue">Tambah sebagai antrian baca</string>
+    <string name="remove_from_speech_queue">Hapus dari antrian baca</string>
+    <string name="playlist">Daftar putar</string>
+    <string name="collection">Koleksi</string>
+    <string name="unsupported_received_link">Tautan tidak didukung</string>
+    <string name="read_in_speech">Baca dengan suara</string>
+    <string name="delete">Hapus</string>
+    <string name="change_read_mode">Ganti mode baca</string>
+    <string name="next">Lanjut</string>
+    <string name="previous">Sebelumnya</string>
+    <string name="ordering">Urutkan</string>
+    <string name="empty_playlist_shuffle_ok">Daftar putar masih kosong, Putar acak?</string>
+    <string name="shuffle">Acak</string>
+    <string name="theme">Tema</string>
+    <string name="empty_desc">Silakan periksa sumber berita dari saluran RSS favorit anda. Klik Tambah untuk memulai</string>
+    <string name="empty_header">Tidak Ada Berita</string>
+    <string name="empty_playlist">Tidak ada Daftar Putar</string>
+    <string name="search">Cari Berita</string>
+</resources>

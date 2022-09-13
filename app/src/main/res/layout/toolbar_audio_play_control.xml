@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:paddingVertical="@dimen/dp_8"
+    android:visibility="gone"
+    tools:visibility="visible">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/bt_play"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="title" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/bt_play"
+        android:layout_width="@dimen/dp_24"
+        android:layout_height="@dimen/dp_24"
+        android:layout_marginRight="@dimen/dp_8"
+        android:background="?selectableItemBackgroundBorderless"
+        app:layout_constraintEnd_toStartOf="@+id/bt_close"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_baseline_play_arrow"
+        app:tooltipText="@string/reading_speech_control" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_circular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_8"
+        android:indeterminate="false"
+        android:max="100"
+        app:indicatorInset="0px"
+        app:indicatorSize="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="@id/bt_play"
+        app:layout_constraintLeft_toLeftOf="@id/bt_play"
+        app:layout_constraintRight_toRightOf="@id/bt_play"
+        app:layout_constraintTop_toTopOf="@id/bt_play"
+        app:trackColor="#4CAF50"
+        app:trackThickness="@dimen/dp_2" />
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/bt_close"
+        android:layout_width="@dimen/dp_24"
+        android:layout_height="@dimen/dp_24"
+        android:background="?selectableItemBackgroundBorderless"
+        android:tooltipText="@string/stop_reading"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_round_close"
+        tools:targetApi="o" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

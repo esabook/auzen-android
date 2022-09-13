@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="@dimen/dp_18"
+    app:cardElevation="0px"
+    app:cardUseCompatPadding="false">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:padding="@dimen/dp_16">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_favicon"
+            android:layout_width="@dimen/dp_24"
+            android:layout_height="@dimen/dp_24"
+            android:layout_marginTop="@dimen/dp_18"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeRounded8dp"
+            app:srcCompat="@color/black_10" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_source"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_8"
+            android:maxLines="1"
+            android:ellipsize="end"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
+            android:textColor="@color/green_60"
+            app:layout_constraintLeft_toRightOf="@id/iv_favicon"
+            app:layout_constraintRight_toLeftOf="@id/tv_publish_date"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Source" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_publish_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textColor="@color/black_60"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="pubDate" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black_80"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:layout_marginRight="@dimen/dp_4"
+            app:layout_constraintLeft_toLeftOf="@id/tv_source"
+            app:layout_constraintRight_toLeftOf="@+id/iv_thumbnail"
+            app:layout_constraintTop_toBottomOf="@id/tv_source"
+            tools:text="Title" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_thumbnail"
+            android:layout_width="@dimen/dp_77"
+            android:layout_height="@dimen/dp_77"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="@dimen/dp_4"
+            android:visibility="gone"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_publish_date"
+            app:shapeAppearance="@style/ShapeRounded8dp"
+            app:srcCompat="@color/black_10"
+            tools:visibility="visible" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_hint_reorder"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="@string/ordering"
+            android:textColor="@color/white"
+            android:textSize="38sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

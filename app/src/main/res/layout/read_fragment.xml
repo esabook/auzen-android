@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:indeterminate="false"
+        android:max="100"
+        app:indicatorColor="@color/black_05"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="@id/toolbar"
+        app:trackColor="@android:color/transparent"
+        app:trackCornerRadius="1dp"
+        app:trackThickness="@dimen/dp_38"
+        tools:progress="30" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_38"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:contentInsetEndWithActions="0px"
+        app:contentInsetStartWithNavigation="0px"
+        app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/read_menu"
+        app:navigationIcon="@drawable/ic_round_arrow_back" />
+
+
+    <com.esabook.auzen.article.player.PlayerFrameLayout
+        android:id="@+id/player_fl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/dp_16"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:indeterminateAnimationType="disjoint"
+        app:layout_constraintBottom_toBottomOf="@id/player_fl"
+        app:trackCornerRadius="1dp"
+        app:trackThickness="@dimen/dp_2" />
+
+    <com.esabook.auzen.ui.WebView
+        android:id="@+id/web"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbarThumbVertical="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@id/g_button"
+        app:layout_constraintTop_toBottomOf="@id/player_fl" />
+
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/g_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/dp_24"
+        android:paddingVertical="@dimen/dp_12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/bt_mark_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:tooltipText="@string/mark_as_read"
+            app:srcCompat="@drawable/ic_read_uncheck"
+            tools:targetApi="o" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/bt_add_to_queue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_12"
+            android:background="?selectableItemBackgroundBorderless"
+            android:tooltipText="@string/add_to_speech_queue"
+            app:srcCompat="@drawable/ic_baseline_bookmark_add"
+            tools:targetApi="o" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/bt_play2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:tooltipText="@string/reading_speech_control"
+            app:srcCompat="@drawable/ic_baseline_play_arrow"
+            tools:targetApi="o" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

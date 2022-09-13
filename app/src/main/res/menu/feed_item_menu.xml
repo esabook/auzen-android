@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/sc_read_in_speech"
+        android:icon="@drawable/ic_baseline_play_arrow"
+        android:title="@string/read_in_speech"/>
+
+    <item
+        android:id="@+id/sc_mark_as_read"
+        android:icon="@drawable/ic_read_check"
+        android:title="@string/mark_as_read"/>
+
+    <item
+        android:id="@+id/sc_add_to_playlist"
+        android:icon="@drawable/ic_baseline_bookmark_add"
+        android:title="@string/add_to_speech_queue"/>
+
+
+    <item
+        android:id="@+id/sc_open_browser"
+        android:icon="@drawable/ic_round_open_in_browser"
+        android:title="@string/open_external_browser"/>
+
+    <item
+        android:id="@+id/sc_share_link_external"
+        android:icon="@drawable/ic_round_share"
+        android:title="@string/share_link" />
+
+    <item
+        android:id="@+id/sc_copy_link"
+        android:icon="@drawable/ic_round_content_copy"
+        android:title="@string/copy_link" />
+
+    <item
+        android:id="@+id/sc_delete"
+        android:icon="@drawable/ic_baseline_delete_forever"
+        android:title="@string/delete" />
+</menu>
