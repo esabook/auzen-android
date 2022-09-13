@@ -21,3 +21,4 @@
 -renamesourcefileattribute SourceFile
 
 -keep class com.rometools.** { *; }
+-keep class com.esabook.auzen.databinding.** { *; }
