@@ -169,6 +169,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
                                             list.forEach { art ->
                                                 articleQueueDao().update(art.guid, true)
                                             }
+                                            player.speakPlay()
                                             job?.cancel()
                                             job = null
                                         }
@@ -178,7 +179,6 @@ class PlayerFragment : BottomSheetDialogFragment() {
                         }.show()
                     }
                 } else {
-//                    progressDialog.setRefreshing(true)
                     player.speakPlay()
                 }
             }

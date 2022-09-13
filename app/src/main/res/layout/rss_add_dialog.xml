@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/dp_24">
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/rss_url"
@@ -25,7 +26,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_4"
         android:layout_gravity="end"
-        android:text="Cancel" />
+        android:text="Cancel Fetch" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_4"
+        android:layout_gravity="end"
+        android:text="Close" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_log"

@@ -43,6 +43,9 @@ class RssCollectionFragment : Fragment() {
 
     private fun initListener() = lifecycleScope.launch(Dispatchers.IO) {
 
+        binding.add.setOnClickListener {
+            RssAddDialog(requireContext()).show()
+        }
         model.rssAdapter.onItemClickListener = OnItemClickListener { _, _, payload ->
             lifecycleScope.launchWhenResumed {
                 when (payload) {

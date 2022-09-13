@@ -8,10 +8,7 @@ import com.esabook.auzen.App
 import com.esabook.auzen.data.api.Api
 import com.esabook.auzen.data.db.entity.RssEntity
 import com.esabook.auzen.databinding.RssAddDialogBinding
-import com.esabook.auzen.extentions.OpmlParseUtils
-import com.esabook.auzen.extentions.post2
-import com.esabook.auzen.extentions.removeNewLine
-import com.esabook.auzen.extentions.toStringWithPattern
+import com.esabook.auzen.extentions.*
 import com.rometools.rome.feed.synd.SyndFeed
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
@@ -36,6 +33,13 @@ class RssAddDialog(context: Context) : AlertDialog(context) {
             btCancel.setOnClickListener {
                 job?.cancel()
                 job = null
+            }
+
+            btClose.setOnClickListener {
+                if (job == null)
+                    dismiss()
+                else
+                    context.toast("Please Wait until job cancelled or completed")
             }
         }
         setContentView(binding!!.root)
@@ -74,8 +78,10 @@ class RssAddDialog(context: Context) : AlertDialog(context) {
                         OpmlParseUtils.saveArticle(rssEntity, feed.entries)
                     }
                     setCancelable(true)
+                    job = null
                 } catch (e: Exception) {
-                    setCancelable(true)
+                    setCancelable(false)
+                    job = null
                     binding?.tvLog?.post2 {
                         text = e.message
                     }
