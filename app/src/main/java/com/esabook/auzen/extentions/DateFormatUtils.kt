@@ -38,17 +38,18 @@ val shortMonthNamesIndo = arrayOf(
 val weekDaysINDLong = arrayOf("Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu")
 val weekDaysINDShort = arrayOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
 
-fun getSimpleDateFormatIndo(pattern: String): SimpleDateFormat {
-    val sdf = SimpleDateFormat(pattern, Locale.getDefault())
-    sdf.isLenient = true
-
-    val dfs = sdf.dateFormatSymbols
+private val sDateFormat = SimpleDateFormat(defaultDatePatterns[0], Locale.ENGLISH).apply {
+    isLenient = false
+    val dfs = dateFormatSymbols
     dfs.months = longMonthNamesIndo
     dfs.shortMonths = shortMonthNamesIndo
     dfs.weekdays = weekDaysINDLong
     dfs.shortWeekdays = weekDaysINDShort
-    sdf.dateFormatSymbols = dfs
-    return sdf
+    dateFormatSymbols = dfs
+}
+
+fun getSimpleDateFormatIndo(pattern: String): SimpleDateFormat {
+    return sDateFormat.apply { applyPattern(pattern) }
 }
 
 /**
@@ -97,7 +98,13 @@ fun Date.relativeLocalizeDate2DayIndo(): String {
 
     val prePostSuffix = if (time > now) "lagi" else "yang lalu"
     return when {
-        positiveValue > DateUtils.WEEK_IN_MILLIS -> this.toStringWithPattern("EEEE, dd MMM yyyy")
+        positiveValue > DateUtils.WEEK_IN_MILLIS -> try {
+            getSimpleDateFormatIndo("EEEE, dd MMM yyyy").format(this)
+        } catch (e: Exception) {
+            toString()
+        }
+
+        TimeUnit.MILLISECONDS.toDays(positiveValue) == 1L -> "Kemarin"
         positiveValue > DateUtils.DAY_IN_MILLIS -> "${TimeUnit.MILLISECONDS.toDays(positiveValue)} hari $prePostSuffix"
         else -> "Hari ini"
     }

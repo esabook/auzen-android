@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.esabook.auzen.App
 import com.esabook.auzen.databinding.RssFragmentBinding
 import com.esabook.auzen.extentions.doSync
@@ -35,9 +37,13 @@ class RssCollectionFragment : Fragment() {
         binding.rvData.adapter = model.rssAdapter
 
         initListener()
-        lifecycleScope.launch {
-            model.fillAdapter()
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                lifecycleScope.launch {
+                    model.fillAdapter()
 
+                }
+            }
         }
     }
 
@@ -47,7 +53,7 @@ class RssCollectionFragment : Fragment() {
             RssAddDialog(requireContext()).show()
         }
         model.rssAdapter.onItemClickListener = OnItemClickListener { _, _, payload ->
-            lifecycleScope.launchWhenResumed {
+            viewLifecycleOwner.lifecycleScope.launch {
                 when (payload) {
                     is RssCollectionAction.Sync -> {
                         try {
@@ -89,7 +95,9 @@ class RssCollectionFragment : Fragment() {
                     }
                 }
 
-                model.invalidateTotalArticle()
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    model.invalidateTotalArticle()
+                }
             }
         }
 

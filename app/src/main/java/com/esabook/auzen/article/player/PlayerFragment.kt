@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.core.view.isGone
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.esabook.auzen.App
@@ -25,7 +27,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.cancellable
 import timber.log.Timber
 import java.util.*
 
@@ -69,8 +70,10 @@ class PlayerFragment : BottomSheetDialogFragment() {
             }
         }
 
-        lifecycleScope.launch {
-            model.feeds.collectLatest2 { model.itemAdapter.submitList(it) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.feeds.collectLatest2 { model.itemAdapter.submitList(it) }
+            }
         }
 
         binding?.root?.parent?.let {
@@ -165,7 +168,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
                                     val data = articleDao().loadAllWithUnread(true, 20)
                                     var job: Job? = null
                                     job = ioScope.launch {
-                                        data.cancellable().collectLatest2 { list ->
+                                        data.collectLatest2 { list ->
                                             list.forEach { art ->
                                                 articleQueueDao().update(art.guid, true)
                                             }

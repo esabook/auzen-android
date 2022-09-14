@@ -37,7 +37,6 @@ class FeedItemViewHolder(parent: ViewGroup) :
                     val title = data.title?.parseAsHtml()?.removeDebris()
                     tvTitle.text = title
                     var desc = data.description?.parseAsHtml()?.removeDebris()
-                    if (title.isNullOrBlank().not()) desc = desc?.replaceFirst(title ?: "", "")
                     if ((desc?.length ?: 0) < 20) desc = null
                     tvDescription.text = desc
 

@@ -17,9 +17,16 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
     fun setData(data: ArticleEntity) {
         itemView.postInvalidate()
         val v = binding
-        v.tvTitle.text = data.title?.removeNewLine()?.parseAsHtml()?.removeDebris()
-        v.tvPublishDate.text =
-            data.pubDate?.toDate()?.toStringWithPattern("EEEE, dd MMMM yyyy '|' HH:mm") ?: ""
+        v.tvTitle.text = data.title
+            ?.removeNewLine()
+            ?.parseAsHtml()
+            ?.removeDebris()
+
+        v.tvPublishDate.text = data.pubDate
+            ?.toDate()
+            ?.toStringWithPattern("EEEE, dd MMMM yyyy '|' HH:mm", true)
+            ?: ""
+
         v.tvSource.text = data.sourceTitle
 
         if (data.enclosure != null) {

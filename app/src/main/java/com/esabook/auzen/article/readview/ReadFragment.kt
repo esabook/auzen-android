@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.esabook.auzen.App
 import com.esabook.auzen.R
 import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.player.PlayerView
@@ -68,6 +69,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         lifecycleScope.launchWhenCreated {
             withContext(Dispatchers.IO) {
                 model.articleLink = arguments?.getString(PAYLOAD_LINK) ?: ""
+                App.db.articleDao().markAsReadByGuidOrLink(model.articleLink, model.articleLink)
             }
         }
     }

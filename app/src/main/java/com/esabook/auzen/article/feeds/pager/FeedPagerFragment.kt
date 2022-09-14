@@ -8,8 +8,10 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import com.esabook.auzen.App
 import com.esabook.auzen.R
@@ -29,7 +31,6 @@ import com.esabook.auzen.ui.StickHeaderItemDecoration
 import com.esabook.auzen.ui.viewBinding
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.cancellable
 import timber.log.Timber
 
 class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
@@ -79,9 +80,13 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
         binding.swipeRefresh.setProgressViewOffset(true, 5, 100)
         binding.swipeRefresh.setOnRefreshListener {
-            App.db.launchIo {
-                rssDao().getAll().collectLatest2 {
-                    it.filter { !it.muteAutoSync }.doSync { binding.swipeRefresh.post2 { isRefreshing = false } }
+            viewLifecycleOwner.lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    App.db.rssDao().getAll().collectLatest2 {
+                        it.filter { r -> !r.muteAutoSync }.doSync {
+                            binding.swipeRefresh.post2 { isRefreshing = false }
+                        }
+                    }
                 }
             }
         }
@@ -98,7 +103,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
                         val data = articleDao().loadAllWithUnread(true, 20)
                         var job: Job? = null
                         job = ioScope.launch {
-                            data.cancellable().collectLatest2 { list ->
+                            data.collectLatest2 { list ->
                                 list.forEach { art ->
                                     articleQueueDao().update(art.guid, true)
                                 }
@@ -114,11 +119,13 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         }
 
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             initAction()
             model.filterType = payloadFilterType
-            model.feeds.collectLatest2 {
-                model.adapterSubmitList(it, lifecycle)
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                model.feeds.collectLatest2 {
+                    model.adapterSubmitList(it, lifecycle)
+                }
             }
         }
 

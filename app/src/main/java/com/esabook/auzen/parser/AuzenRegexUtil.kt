@@ -29,8 +29,8 @@ class AuzenRegexUtil: RegExUtilExtended() {
     override fun isPositive(matchString: String): Boolean {
         return positivePattern.matcher(matchString).find()
     }
-
-    override fun keepImage(matchString: String): Boolean {
-        return super.keepImage(matchString) || keepImagePattern.matcher(matchString).find()
-    }
+//
+//    override fun keepImage(matchString: String): Boolean {
+//        return super.keepImage(matchString) || keepImagePattern.matcher(matchString).find()
+//    }
 }

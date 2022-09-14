@@ -57,11 +57,13 @@
             android:textColor="@color/black_80"
             android:maxLines="3"
             android:ellipsize="end"
+            android:breakStrategy="high_quality"
             android:layout_marginRight="@dimen/dp_4"
             app:layout_constraintLeft_toLeftOf="@id/tv_source"
             app:layout_constraintRight_toLeftOf="@+id/iv_thumbnail"
             app:layout_constraintTop_toBottomOf="@id/tv_source"
-            tools:text="Title" />
+            tools:text="Title"
+            tools:ignore="UnusedAttribute" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_description"
@@ -73,11 +75,13 @@
             android:paddingTop="@dimen/dp_4"
             android:maxLines="4"
             android:layout_marginRight="@dimen/dp_4"
+            android:breakStrategy="high_quality"
             style="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintLeft_toLeftOf="@id/tv_source"
             app:layout_constraintRight_toLeftOf="@+id/iv_thumbnail"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
-            tools:text="desc" />
+            tools:text="desc"
+            tools:ignore="UnusedAttribute" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/iv_thumbnail"

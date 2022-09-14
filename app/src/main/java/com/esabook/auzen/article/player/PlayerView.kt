@@ -21,7 +21,6 @@ import com.esabook.auzen.extentions.post2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -249,7 +248,7 @@ class PlayerView(viewGroup: ViewGroup) {
 
         private fun markArticleAsRead() {
             mArticleEntity?.link?.let {
-                App.db.launchIo { articleDao().markAsReadByLink(it) }
+                App.db.launchIo { articleDao().markAsReadByGuidOrLink(mArticleEntity!!.guid, it) }
             }
         }
 
@@ -280,7 +279,7 @@ class PlayerView(viewGroup: ViewGroup) {
                 App.db.launchIo {
                     var job: Job? = null
                     job = ioScope.launch {
-                        dbPlaylist.cancellable().collectLatest2 {
+                        dbPlaylist.collectLatest2 {
                             val sortUnplayedLinkToFirst = it
                             linkQueue.clear()
                             linkQueue.addAll(sortUnplayedLinkToFirst)

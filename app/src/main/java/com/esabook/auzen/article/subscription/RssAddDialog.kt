@@ -68,7 +68,8 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
                             feed.title?.removeNewLine(),
                             url,
                             feed.description,
-                            (feed.publishedDate ?: Date()).toStringWithPattern(),
+                            (feed.publishedDate
+                                ?: Date()).toStringWithPattern(defaultDatePatterns[0], false),
                             feed.copyright,
                             feed.categories?.joinToString(";"),
                             feed.icon?.link ?: feed.icon?.url,

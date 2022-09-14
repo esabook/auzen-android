@@ -64,7 +64,7 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
     }
 
     override fun getHeaderLayout(headerPosition: Int): Int {
-        return R.layout.feed_header_view_holder
+        return R.layout.feed_sticky_header
     }
 
     override fun getHeaderPositionForItem(itemPosition: Int): Int {

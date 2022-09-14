@@ -39,8 +39,8 @@ interface ArticleDao {
     @Query("UPDATE article SET is_unread = :isUnRead WHERE guid = :guid")
     fun markAsRead(guid: String, isUnRead: Boolean): Int
 
-    @Query("UPDATE article SET is_unread = 0 WHERE link = :link")
-    fun markAsReadByLink(link: String): Int
+    @Query("UPDATE article SET is_unread = 0 WHERE guid == :guid OR link LIKE :link")
+    fun markAsReadByGuidOrLink(guid: String, link: String): Int
 
 
     @Query("SELECT * FROM article WHERE is_unread = :isUnRead ORDER by pub_date_timestamp DESC")

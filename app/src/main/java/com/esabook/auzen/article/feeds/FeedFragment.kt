@@ -20,17 +20,15 @@ import com.esabook.auzen.article.subscription.RssAddDialog
 import com.esabook.auzen.article.subscription.RssCollectionFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedFragmentBinding
+import com.esabook.auzen.extentions.fadInAnimation
 import com.esabook.auzen.extentions.getDrw
 import com.esabook.auzen.extentions.setTextAnimation
-import com.esabook.auzen.extentions.waitUntilExpanded
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
 import com.esabook.auzen.ui.viewBinding
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class FeedFragment : Fragment(R.layout.feed_fragment) {
@@ -49,6 +47,11 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 isEnabled = false
                 requireActivity().onBackPressed()
                 isEnabled = true
+                return
+            }
+
+            if (binding.viewpager.currentItem != model.tabPositionHome) {
+                binding.viewpager.currentItem = model.tabPositionHome
                 return
             }
 
@@ -87,8 +90,8 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 tab.contentDescription = tabObj.desc
                 tab.icon = tabObj.iconId?.let { resources.getDrw(it) }
 
-                if (tabObj.selected && model.tabPosition == -1) {
-                    model.tabPosition = index
+                if (tabObj.selected) {
+                    model.tabPositionCurrent = index
                     tab.select()
                 }
                 binding.tab.addTab(tab)
@@ -97,21 +100,22 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
             binding.tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
-                    binding.viewpager.setCurrentItem(tab.position, true)
 
                     val tabs = pagerAdapter.tabs[tab.position]
                     if (tabs.id == FeedFilterType.DUMMY) {
                         RssAddDialog(requireContext()).show()
-                        binding.tab.selectTab(binding.tab.getTabAt(model.tabPosition))
+                        binding.tab.selectTab(binding.tab.getTabAt(model.tabPositionCurrent))
                         return
                     }
 
 
+                    binding.viewpager.setCurrentItem(tab.position, tabs.id != FeedFilterType.DUMMY)
                     binding.tvHead.setTextAnimation(tabs.desc)
-                    model.tabPosition = tab.position
+                    model.tabPositionCurrent = tab.position
 
                     val bundleKey = FeedPagerFragment.getItemCountKey(tabs.id)
                     val itemCount = bundle.getInt(bundleKey)
+                    model.totalItemFlowKey = bundleKey
                     model.totalItemFlow.tryEmit(itemCount)
                 }
 
@@ -134,16 +138,18 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
             })
 
 
-            binding.tab.selectTab(binding.tab.getTabAt(model.tabPosition), true)
+            binding.tab.selectTab(binding.tab.getTabAt(model.tabPositionCurrent), true)
 
             childFragmentManager.setFragmentResultListener(
                 FeedPagerFragment.RESULT_KEY,
                 viewLifecycleOwner
             ) { _, result ->
                 bundle.putAll(result)
-                val key = result.getString(FeedPagerFragment.RESULT_KEY)
+                val key = result.getString(FeedPagerFragment.RESULT_KEY, "")
                 val itemCount = result.getInt(key, 0)
-                model.totalItemFlow.tryEmit(itemCount)
+
+                if (model.totalItemFlowKey == key)
+                    model.totalItemFlow.tryEmit(itemCount)
             }
 
 
@@ -155,26 +161,15 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 val offsetAsAlpha = verticalOffset.toFloat() / -totalOffset.toFloat()
                 val alpha = 1f - offsetAsAlpha
                 binding.gHeader.alpha = alpha
-
-                if (binding.searchBar.isVisible && alpha < .5F) {
-                    binding.searchParent.isGone = true
-                    binding.searchBar.isIconified = true
-                }
             }
 
             binding.toolbar.setNavigationOnClickListener { gotoRssSettingScreen() }
             binding.toolbar.setOnMenuItemClickListener {
                 if (it.itemId == R.id.sc_search) {
                     binding.searchParent.apply {
-                        lifecycleScope.launch {
-                            withContext(Dispatchers.Main) {
-                                binding.appbar.setExpanded(true, true)
-                                binding.appbar.waitUntilExpanded()
-                                isVisible = true
-                                binding.searchBar.isIconified = false
-                            }
-                        }
-
+                        isVisible = isGone
+                        binding.searchBar.isIconified = isGone
+                        fadInAnimation()
                     }
                 }
                 true
@@ -188,7 +183,7 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 //            binding.btPlaylist.setOnClickListener { gotoPlayerScreen() }
 
             model.totalItemFlow.asLiveData().observe(viewLifecycleOwner) {
-                "$it Berita".also { t -> binding.tvHeadTotal.text = t }
+                "${it} Berita".also { t -> binding.tvHeadTotal.text = t }
             }
 
             binding.playerFl.setOnClickListener {

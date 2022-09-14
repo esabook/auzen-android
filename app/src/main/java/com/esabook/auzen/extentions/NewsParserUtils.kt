@@ -39,6 +39,7 @@ object NewsParserUtils {
 
     suspend fun Article.toArticleEntity(): ArticleEntity = withContext(Dispatchers.IO){
         val description = excerpt?.take(360) ?: textContent?.take(360)
+        val date = Date()
         val articleEntity = ArticleEntity(
             UUID.nameUUIDFromBytes(title?.toByteArray()).toString(),
             "External",
@@ -46,8 +47,8 @@ object NewsParserUtils {
             uri,
             description,
             byline,
-            Date().toStringWithPattern(),
-            Date().time,
+            date.toStringWithPattern(),
+            date.time,
             null,
             uri.toUri().host,
             uri.toUri().host

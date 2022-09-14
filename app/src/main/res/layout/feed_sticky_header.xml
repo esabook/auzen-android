@@ -6,8 +6,7 @@
     tools:visibility="visible"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
-    android:paddingBottom="@dimen/dp_4"
-    android:paddingTop="@dimen/dp_16">
+    android:paddingVertical="@dimen/dp_4">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_date_indicator"

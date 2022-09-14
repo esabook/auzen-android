@@ -39,7 +39,6 @@ class ReadVM : ViewModel() {
             return
 
         articleEntity = a
-        markUnRead(false)
         isUnread.postValue(articleEntity?.isUnread == true)
         isInPlaylist.postValue(articleEntity?.isPlayListQueue == true)
         if (a != null)

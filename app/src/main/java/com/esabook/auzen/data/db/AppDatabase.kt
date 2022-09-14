@@ -8,10 +8,7 @@ import com.esabook.auzen.data.db.dao.ArticleQueueDao
 import com.esabook.auzen.data.db.dao.RssDao
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.data.db.entity.RssEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
+import kotlinx.coroutines.*
 
 @Database(
     entities = [RssEntity::class, ArticleEntity::class],
@@ -23,8 +20,10 @@ abstract class AppDatabase : RoomDatabase() {
     val ioScope = MainScope() + Dispatchers.IO
 
     fun launchIo(run: suspend AppDatabase.() -> Unit) {
-        ioScope.launch(Dispatchers.IO) {
-            run.invoke(this@AppDatabase)
+        ioScope.launch {
+            withContext(Dispatchers.IO) {
+                run.invoke(this@AppDatabase)
+            }
         }
     }
 
