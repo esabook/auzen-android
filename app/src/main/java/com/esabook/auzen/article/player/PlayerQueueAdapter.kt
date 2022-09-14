@@ -1,16 +1,13 @@
 package com.esabook.auzen.article.player
 
+import android.annotation.SuppressLint
+import android.view.KeyEvent
 import android.view.ViewGroup
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.esabook.auzen.R
 import com.esabook.auzen.data.db.entity.ArticleEntity
-import com.esabook.auzen.extentions.getClr
-import com.esabook.auzen.extentions.post2
 import com.esabook.auzen.ui.OnItemClickListener
 import timber.log.Timber
 
@@ -24,30 +21,16 @@ class PlayerQueueAdapter : ListAdapter<ArticleEntity, PlayerQueueItemViewHolder>
         return PlayerQueueItemViewHolder(parent)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: PlayerQueueItemViewHolder, position: Int) {
-        val payload = getItem(position) ?: return
+        val payload = getItem(position)
         holder.setData(payload)
         holder.itemView.setOnClickListener { onClick(holder, position, payload) }
-        holder.itemView.setOnLongClickListener {
-            holder.binding.let { v ->
-                v.tvHintReorder.apply {
-                    isVisible = true
-                    alpha = 0F
-                    animate()
-                        .alpha(1F)
-                        .setDuration(300)
-                        .start()
-                }
-
-                val lastColor = v.root.cardBackgroundColor
-                v.root.setCardBackgroundColor(it.resources.getClr(R.color.purple_100))
-                v.tvHintReorder.post2(1000) {
-                    isGone = true
-                    v.root.setCardBackgroundColor(lastColor)
-                }
-            }
-
-            return@setOnLongClickListener true
+        holder.binding.tvHintReorder.setOnTouchListener { _, event ->
+            return@setOnTouchListener if (event.action == KeyEvent.ACTION_DOWN)
+                holder.itemView.performLongClick()
+            else
+                false
         }
 
 

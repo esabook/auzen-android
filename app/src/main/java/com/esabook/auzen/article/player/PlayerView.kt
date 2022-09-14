@@ -15,6 +15,7 @@ import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.ToolbarAudioPlayControlBinding
 import com.esabook.auzen.extentions.NewsParserUtils
 import com.esabook.auzen.extentions.NewsParserUtils.toSpeakable
+import com.esabook.auzen.extentions.SoundPool.playTickSound
 import com.esabook.auzen.extentions.collectLatest2
 import com.esabook.auzen.extentions.layoutInflater
 import com.esabook.auzen.extentions.post2
@@ -31,6 +32,7 @@ class PlayerView(viewGroup: ViewGroup) {
 
     init {
         initEngine(viewGroup.context.applicationContext)
+        context = WeakReference(viewGroup.context)
     }
 
     private var mViewGroup = WeakReference(viewGroup)
@@ -174,6 +176,7 @@ class PlayerView(viewGroup: ViewGroup) {
 
     companion object {
 
+        private var context: WeakReference<Context>? = null
 
         val linkQueue: Deque<ArticleEntity> = LinkedList()
 
@@ -190,6 +193,7 @@ class PlayerView(viewGroup: ViewGroup) {
             speakQueue = listOf()
             mArticleEntity = null
             lastDoneID = -1
+            totalChar = 0L
             mProgressPercent.tryEmit(0)
         }
 
@@ -209,11 +213,20 @@ class PlayerView(viewGroup: ViewGroup) {
                 mPlayerStateLiveData.postValue(field)
             }
 
+        /**
+         * 100% based
+         */
         private val mProgressPercent = MutableStateFlow(0)
 
         private var utteranceProgressListener = object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String) {
 
+            }
+
+
+            override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                currentCharIndex += end - start
+                mProgressPercent.tryEmit((currentCharIndex * 100 / totalChar).toInt())
             }
 
             override fun onDone(utteranceId: String) {
@@ -258,14 +271,25 @@ class PlayerView(viewGroup: ViewGroup) {
             }
         }
 
-        private fun getProgress(): Int {
-            val totalParagraph = speakQueue.size
-            val currentParagraphIndex = lastDoneID
+        var totalChar = 0L
 
+        /**
+         *
+         */
+        var currentCharIndex = 0L
+
+        private fun getProgress(): Int {
+
+            if (totalChar == 0L) {
+                speakQueue.forEach {
+                    totalChar += it.length
+                }
+                currentCharIndex = 0L
+            }
             //2 from 10 is 20%
             //2 from 8 is
             return try {
-                currentParagraphIndex * 100 / totalParagraph
+                (currentCharIndex * 100 / totalChar).toInt()
             } catch (e: Exception) {
                 0
             }
@@ -317,6 +341,7 @@ class PlayerView(viewGroup: ViewGroup) {
                         val link = articleEntity.link!!
                         val words = NewsParserUtils.getArticle(link)?.toSpeakable()
                         speakQueue = words!!
+                        context?.get()?.playTickSound()
                         speakNextParagraph()
 
                     } catch (e: Exception) {

@@ -24,7 +24,7 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
 
         v.tvPublishDate.text = data.pubDate
             ?.toDate()
-            ?.toStringWithPattern("EEEE, dd MMMM yyyy '|' HH:mm", true)
+            ?.toStringWithPattern("EEEE, dd MMM yyyy '|' HH:mm", true)
             ?: ""
 
         v.tvSource.text = data.sourceTitle

@@ -49,13 +49,13 @@ object xCrash {
         XCrash.init(
             app, XCrash.InitParameters()
                 .setAppVersion(BuildConfig.VERSION_NAME)
-                .setJavaRethrow(true)
+                .setJavaRethrow(false)
                 .setJavaLogCountMax(10) //.setJavaDumpAllThreadsAllowList(new String[]{"^main$", "^Binder:.*", ".*Finalizer.*"})
                 //.setJavaDumpAllThreadsCountMax(10)
                 .setJavaCallback(callback)
                 .setNativeRethrow(false)
                 .setNativeLogCountMax(10)
-                .setNativeDumpAllThreads(true) //.setNativeDumpAllThreadsAllowList(new String[]{"^xcrash\\.sample$", "^Signal Catcher$", "^Jit thread pool$", ".*(R|r)ender.*", ".*Chrome.*"})
+                .setNativeDumpAllThreads(false) //.setNativeDumpAllThreadsAllowList(new String[]{"^xcrash\\.sample$", "^Signal Catcher$", "^Jit thread pool$", ".*(R|r)ender.*", ".*Chrome.*"})
                 //.setNativeDumpAllThreadsCountMax(10)
                 .setNativeCallback(callback)
                 .setAnrRethrow(true)
@@ -82,7 +82,7 @@ object xCrash {
         // Parse and save the crash info to a JSON file for debugging.
         var writer: FileWriter? = null
         try {
-            val debug = File(app.externalCacheDir.toString() + "/tombstones/debug.json")
+            val debug = File(app.getExternalFilesDir(null), "/tombstones/debug.json")
             debug.createNewFile()
             writer = FileWriter(debug, false)
             writer.write(JSONObject((TombstoneParser.parse(logPath, emergency) as Map<*, *>?)!!).toString())

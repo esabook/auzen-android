@@ -27,13 +27,14 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
 import timber.log.Timber
 import java.util.*
 
 class PlayerFragment : BottomSheetDialogFragment() {
     private var binding: PlayerFragmentBinding? = null
     private val model: PlayerVM by viewModels()
-//    private val progressDialog: ProgressDialog by lazy { ProgressDialog(requireContext()) }
 
     lateinit var player: PlayerView
     private lateinit var dragHelper: ItemTouchHelper
@@ -90,29 +91,37 @@ class PlayerFragment : BottomSheetDialogFragment() {
             it.viewTreeObserver.addOnGlobalLayoutListener(treeObserver)
         }
 
+        val changeSpeedFlow = MutableStateFlow(TTSManager.currentSpeed)
+        lifecycleScope.launch(Dispatchers.IO) {
+            changeSpeedFlow.debounce(500).collectLatest2 { value ->
+                if (TTSManager.currentSpeed == value)
+                    return@collectLatest2
 
-        binding?.slideReaderSpeed?.post2 {
-            addOnChangeListener { _, value, _ ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    TTSManager.currentSpeed = value
-                    if (player.playerState == PLAYING) {
-                        player.speakPause()
-                        player.speakPlay()
-                    }
-                }
-
-                "${value}x".also {
-                    binding?.tvSpeechSpeedRate?.text = it
+                TTSManager.currentSpeed = value
+                if (player.playerState == PLAYING) {
+                    player.speakPause()
+                    player.speakPlay()
                 }
             }
         }
+
+
+        binding?.slideReaderSpeed?.value = TTSManager.currentSpeed
+        "${TTSManager.currentSpeed}x".also { binding?.tvSpeechSpeedRate?.text = it }
+
+
+        binding?.slideReaderSpeed?.post2 {
+            addOnChangeListener { _, value, _ ->
+                changeSpeedFlow.tryEmit(value)
+                "${value}x".also { binding?.tvSpeechSpeedRate?.text = it }
+            }
+        }
+
 
         binding?.gBottom?.setOnClickListener {
             binding?.slideReaderSpeed?.isGone = true
         }
 
-        binding?.slideReaderSpeed?.value = TTSManager.currentSpeed
-        "${TTSManager.currentSpeed}x".also { binding?.tvSpeechSpeedRate?.text = it }
         binding?.tvSpeechSpeedRate?.setOnClickListener {
             binding?.slideReaderSpeed?.isGone = binding?.slideReaderSpeed?.isGone?.not() ?: true
         }

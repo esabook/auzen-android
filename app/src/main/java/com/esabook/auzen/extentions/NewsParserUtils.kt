@@ -19,7 +19,12 @@ object NewsParserUtils {
     suspend fun getArticle(link: String): Article? = withContext(Dispatchers.IO) {
         try {
             val content = response(url = link).body.string()
-            val readability4J = Readability4JExtended(link, content, regExUtil = AuzenRegexUtil(), articleGrabber = AuzenArticleGrabber())
+            val readability4J = Readability4JExtended(
+                link,
+                content,
+                regExUtil = AuzenRegexUtil(),
+                articleGrabber = AuzenArticleGrabber()
+            )
 
             readability4J.parse()
         } catch (e: Exception) {
@@ -30,14 +35,15 @@ object NewsParserUtils {
     }
 
     suspend fun Article.toSpeakable(): List<String> = withContext(Dispatchers.IO) {
-        contentWithUtf8Encoding
-            ?.parseAsHtml()
+        StringBuilder()
+            .append("Judul: ").append(title).append("\n")
             .toString()
+            .plus(content?.parseAsHtml())
             .split("\n", "\r", "\r\n")
             .filterNot { it.isBlank() }
     }
 
-    suspend fun Article.toArticleEntity(): ArticleEntity = withContext(Dispatchers.IO){
+    suspend fun Article.toArticleEntity(): ArticleEntity = withContext(Dispatchers.IO) {
         val description = excerpt?.take(360) ?: textContent?.take(360)
         val date = Date()
         val articleEntity = ArticleEntity(
@@ -56,5 +62,5 @@ object NewsParserUtils {
         articleEntity
     }
 
-    fun getFaviconUrl(link: String) =  "https://www.google.com/s2/favicons?domain=${link}&sz=96"
+    fun getFaviconUrl(link: String) = "https://www.google.com/s2/favicons?domain=${link}&sz=96"
 }
