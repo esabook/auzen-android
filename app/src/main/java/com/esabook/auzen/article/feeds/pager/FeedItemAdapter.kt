@@ -47,7 +47,7 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        if (holder is FeedItemViewHolder){
+        if (holder is FeedItemViewHolder) {
             holder.notifyRecycled()
         }
     }
@@ -81,6 +81,7 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
     }
 
     override fun bindHeaderData(header: View?, headerPosition: Int) {
+        if (headerPosition < 0) return
         val item = getItem(headerPosition)
         if (item is FeedListItem.Separator) {
             header?.findViewById<AppCompatTextView>(R.id.tv_date_indicator)?.text = item.letter
