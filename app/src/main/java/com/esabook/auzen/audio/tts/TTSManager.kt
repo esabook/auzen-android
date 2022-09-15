@@ -11,6 +11,7 @@ import android.speech.tts.Voice
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import java.util.*
 
 
@@ -18,6 +19,8 @@ object TTSManager {
     enum class TtsState {
         PLAY, STOP
     }
+
+    var context: WeakReference<Context>? = null
 
     var utteranceProgressListener: UtteranceProgressListener? = null
 
@@ -124,27 +127,38 @@ object TTSManager {
         textToSpeech = TextToSpeech(context) { status ->
             Timber.i("TextToSpeech onInit status = $status")
             if (status == TextToSpeech.SUCCESS) {
-                getSpeechParams()
+                textToSpeech?.getSpeechParams()
 
                 val result = textToSpeech?.setLanguage(language)
-                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED ){
-                    val installIntent = Intent()
-                    installIntent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
-                    context.startActivity(installIntent)
+                if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED
+                ) {
+                    context.installMissingData()
                 }
 
                 textToSpeech?.setAudioAttributes(audioAttrs.build())
                 textToSpeech?.setPitch(currentPitch)
                 textToSpeech?.setSpeechRate(currentSpeed)
             }
+
+            this.context = WeakReference(context)
         }
+    }
+
+    private fun Context.installMissingData() {
+        val installIntent = Intent()
+        installIntent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+        installIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(installIntent)
+        deinit()
+        initSpeech(this)
     }
 
     fun getTtsEngineVoiceList(filterName: String = "id-ID") =
         textToSpeech?.voices?.filter { it.name.contains(filterName, true) }
 
-    private fun getSpeechParams() = textToSpeech?.run {
-        val engineInfoList: List<EngineInfo> = getEngines()
+    private fun TextToSpeech.getSpeechParams() {
+        val engineInfoList: List<EngineInfo> = engines
         val builderEngineInfo = StringBuilder("")
         for (engineInfo in engineInfoList) {
             builderEngineInfo.append(" ").append(engineInfo.name).append("&")
@@ -170,8 +184,11 @@ object TTSManager {
     fun playSpeechToSpeaker(inputText: String, playId: String = Random().nextInt().toString()) {
         val result = textToSpeech!!.setLanguage(language)
         Timber.i(" textToSpeech.setLanguage result = $result")
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+        if (result == TextToSpeech.LANG_MISSING_DATA
+            || result == TextToSpeech.LANG_NOT_SUPPORTED
+        ) {
             Timber.i("TextToSpeech.LANG_MISSING_DATA || TextToSpeech.LANG_NOT_SUPPORTED; result = $result")
+            context?.get()?.installMissingData()
 
         } else {
             val text = inputText
