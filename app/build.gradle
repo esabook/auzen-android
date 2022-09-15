@@ -24,6 +24,17 @@ android {
             }
         }
     }
+
+    splits {
+        density {
+            enable true // just enable them all
+        }
+        abi {
+            enable true
+            universalApk false
+        }
+    }
+
     signingConfigs {
         release {
             storeFile file('../signature/release.jks')
