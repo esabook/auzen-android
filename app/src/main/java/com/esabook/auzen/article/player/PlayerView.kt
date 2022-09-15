@@ -261,7 +261,11 @@ class PlayerView(viewGroup: ViewGroup) {
 
         private fun markArticleAsRead() {
             mArticleEntity?.link?.let {
-                App.db.launchIo { articleDao().markAsReadByGuidOrLink(mArticleEntity!!.guid, it) }
+                App.db.launchIo {
+                    mArticleEntity?.guid?.let { it1 ->
+                        articleDao().markAsReadByGuidOrLink(it1, it)
+                    }
+                }
             }
         }
 
