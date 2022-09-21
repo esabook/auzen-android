@@ -18,6 +18,6 @@ interface ArticleQueueDao {
     @Query("SELECT * FROM article WHERE is_playlist_queue = 1 ORDER by playlist_order ASC")
     fun getAllPaged(): PagingSource<Int, ArticleEntity>
 
-    @Query("UPDATE article SET is_playlist_queue = 0")
+    @Query("UPDATE article SET is_playlist_queue = 0 WHERE is_playlist_queue = 1")
     fun clearPlaylist(): Int
 }

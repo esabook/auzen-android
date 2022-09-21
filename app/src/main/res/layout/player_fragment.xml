@@ -20,6 +20,7 @@
             app:shapeAppearance="@style/ShapeRounded"
             app:srcCompat="@color/black_10" />
 
+
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_bar"
             android:layout_width="match_parent"
@@ -31,7 +32,6 @@
             app:queryHint="Cari berita"
             app:searchHintIcon="@null"
             app:searchIcon="@drawable/ic_round_search" />
-
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_horizontal"
@@ -53,6 +53,16 @@
             app:layout_constraintTop_toBottomOf="@id/search_bar"
             tools:itemCount="14"
             tools:listitem="@layout/feed_view_holder" />
+
+
+        <include
+            android:id="@+id/empty"
+            layout="@layout/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/g_bottom"
+            android:layout_below="@id/search_bar"
+            android:visibility="gone" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/g_bottom"
@@ -115,13 +125,13 @@
                     android:id="@+id/tv_speech_speed_rate"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:paddingVertical="@dimen/dp_4"
                     android:background="?selectableItemBackgroundBorderless"
                     android:gravity="center"
                     android:paddingHorizontal="@dimen/dp_16"
-                    tools:text="1x"
+                    android:paddingVertical="@dimen/dp_4"
                     android:textColor="@color/black_80"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="1x" />
 
             </androidx.cardview.widget.CardView>
 
@@ -169,7 +179,20 @@
                 app:layout_constraintTop_toTopOf="@+id/bt_play"
                 app:srcCompat="@drawable/ic_round_settings"
                 app:tint="@color/black_80"
-                app:tooltipText="Pengatura TTS" />
+                app:tooltipText="Pengaturan TTS" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/bt_clean"
+                android:layout_width="@dimen/dp_24"
+                android:layout_height="@dimen/dp_24"
+                android:layout_marginLeft="@dimen/dp_12"
+                android:background="?selectableItemBackgroundBorderless"
+                app:layout_constraintBottom_toBottomOf="@+id/bt_setting"
+                app:layout_constraintStart_toEndOf="@+id/bt_setting"
+                app:layout_constraintTop_toTopOf="@+id/bt_setting"
+                app:srcCompat="@drawable/ic_round_clear_all"
+                app:tint="@color/black_80"
+                app:tooltipText="Kosongkan daftar putar" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
