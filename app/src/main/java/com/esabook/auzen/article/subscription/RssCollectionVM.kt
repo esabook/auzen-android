@@ -6,15 +6,24 @@ import com.esabook.auzen.data.db.entity.RssEntity
 import com.esabook.auzen.extentions.collectLatest2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 
 class RssCollectionVM : ViewModel() {
     val rssAdapter = RssCollectionItemAdapter()
-    val rssEntries: Flow<List<RssEntity>> = App.db.rssDao().getAll()
+    private val rssEntries: Flow<List<RssEntity>> = App.db.rssDao().getAll()
+
+    val totalArticleEntries = MutableStateFlow(0)
 
     suspend fun fillAdapter() {
-        rssEntries.collectLatest2 {
-            rssAdapter.submitList(it)
+        rssEntries.collectLatest2 { datas ->
+            rssAdapter.submitList(datas)
+            var totalNews = 0
+            datas.forEach {
+                totalNews += it.totalEntry
+            }
+
+            totalArticleEntries.tryEmit(totalNews)
         }
     }
 

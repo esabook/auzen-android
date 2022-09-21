@@ -1,33 +1,29 @@
 package com.esabook.auzen.article.feeds
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.widget.ViewPager2
 import com.esabook.auzen.R
-import com.esabook.auzen.article.feeds.pager.FeedPagerAdapter
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment
 import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.readview.ReadFragment
-import com.esabook.auzen.article.subscription.RssAddDialog
 import com.esabook.auzen.article.subscription.RssCollectionFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedFragmentBinding
 import com.esabook.auzen.extentions.fadInAnimation
-import com.esabook.auzen.extentions.getDrw
-import com.esabook.auzen.extentions.setTextAnimation
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
 import com.esabook.auzen.ui.viewBinding
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -36,22 +32,20 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
     private val model: FeedVM by activityViewModels()
     private val binding by viewBinding(FeedFragmentBinding::bind)
 
-    private lateinit var pagerAdapter: FeedPagerAdapter
-
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         private val backCountToExit = 2
         private var currentBackCount = backCountToExit
         override fun handleOnBackPressed() {
 
+            if (binding.root.isDrawerOpen(Gravity.LEFT)) {
+                binding.root.closeDrawers()
+                return
+            }
+
             if (isHidden || view == null) {
                 isEnabled = false
                 requireActivity().onBackPressed()
                 isEnabled = true
-                return
-            }
-
-            if (binding.viewpager.currentItem != model.tabPositionHome) {
-                binding.viewpager.currentItem = model.tabPositionHome
                 return
             }
 
@@ -69,8 +63,6 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 requireActivity().finish()
             }
         }
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -78,123 +70,130 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
         Timber.d("start")
         requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
-        pagerAdapter = FeedPagerAdapter(childFragmentManager, lifecycle, model.queryFlow)
         lifecycleScope.launch {
+            initHeaderView()
+            initDrawerView()
+            initToolbarView()
+            initSearchBarView()
+            initPlayerView()
+            initChipView()
 
-            binding.viewpager.adapter = pagerAdapter
+            Timber.d("end")
+        }
 
-            val bundle = bundleOf()
-            pagerAdapter.tabs.forEachIndexed { index, tabObj ->
-                val tab = binding.tab.newTab()
-                tab.text = tabObj.title
-                tab.contentDescription = tabObj.desc
-                tab.icon = tabObj.iconId?.let { resources.getDrw(it) }
+    }
 
-                if (tabObj.selected) {
-                    model.tabPositionCurrent = index
-                    tab.select()
+    private fun initChipView() {
+        binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            model.checkedFilter.clear()
+
+            checkedIds.forEach { id ->
+                when (id) {
+                    R.id.chip_playlist -> FeedFilter.PLAYLIST.let {
+                        model.checkedFilter.set(it.ordinal, it)
+                    }
+                    R.id.chip_unread -> FeedFilter.UNREAD.let {
+                        model.checkedFilter.set(it.ordinal, it)
+                    }
+                    R.id.chip_read -> FeedFilter.READ.let {
+                        model.checkedFilter.set(it.ordinal, it)
+                    }
                 }
-                binding.tab.addTab(tab)
             }
 
+            invalidateDataList()
 
-            binding.tab.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-                override fun onTabSelected(tab: TabLayout.Tab) {
+        }
+    }
 
-                    val tabs = pagerAdapter.tabs[tab.position]
-                    if (tabs.id == FeedFilterType.DUMMY) {
-                        RssAddDialog(requireContext()).show()
-                        binding.tab.selectTab(binding.tab.getTabAt(model.tabPositionCurrent))
-                        return
-                    }
+    private fun invalidateDataList() {
+        getFeedsFragment().setFilter(model.checkedFilter)
+    }
 
+    private fun getFeedsFragment() = binding.feedPagerFragmentContainer
+        .getFragment<FeedPagerFragment>()
 
-                    binding.viewpager.setCurrentItem(tab.position, tabs.id != FeedFilterType.DUMMY)
-                    binding.tvHead.setTextAnimation(tabs.desc)
-                    model.tabPositionCurrent = tab.position
+    private fun initHeaderView() {
 
-                    val bundleKey = FeedPagerFragment.getItemCountKey(tabs.id)
-                    val itemCount = bundle.getInt(bundleKey)
-                    model.totalItemFlowKey = bundleKey
-                    model.totalItemFlow.tryEmit(itemCount)
-                }
+        model.totalItemFlow.asLiveData().observe(viewLifecycleOwner) {
+            "$it Berita".also { t -> binding.tvHeadTotal.text = t }
+        }
 
-                override fun onTabUnselected(tab: TabLayout.Tab?) {
+        model.totalItemFlowTitle.asLiveData().observe(viewLifecycleOwner) {
+            binding.tvHead.text = it
+        }
 
-                }
-
-                override fun onTabReselected(tab: TabLayout.Tab?) {
-                }
-            })
-
-            binding.viewpager.registerOnPageChangeCallback(object :
-                ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    binding.tab.selectTab(binding.tab.getTabAt(position), true)
-//                    val allowSlideH = position == 0
-//                    binding.viewpager.isUserInputEnabled = allowSlideH
-                }
-
-            })
-
-
-            binding.tab.selectTab(binding.tab.getTabAt(model.tabPositionCurrent), true)
-
-            childFragmentManager.setFragmentResultListener(
+        getFeedsFragment().parentFragmentManager
+            .setFragmentResultListener(
                 FeedPagerFragment.RESULT_KEY,
                 viewLifecycleOwner
             ) { _, result ->
-                bundle.putAll(result)
                 val key = result.getString(FeedPagerFragment.RESULT_KEY, "")
                 val itemCount = result.getInt(key, 0)
 
-                if (model.totalItemFlowKey == key)
-                    model.totalItemFlow.tryEmit(itemCount)
+                model.totalItemFlow.tryEmit(itemCount)
             }
 
+    }
 
+    private fun initDrawerView() {
 
-            binding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-                // eg: 20
-                val totalOffset = appBarLayout.totalScrollRange - appBarLayout.totalScrollRange * .5
-                // eg: 10, -10/-20 = .5
-                val offsetAsAlpha = verticalOffset.toFloat() / -totalOffset.toFloat()
-                val alpha = 1f - offsetAsAlpha
-                binding.gHeader.alpha = alpha
+        binding.root.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            val zoomOutSize = resources.getDimensionPixelSize(R.dimen.dp_60)
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                binding.gContent.x = (slideOffset * zoomOutSize)
             }
 
-            binding.toolbar.setNavigationOnClickListener { gotoRssSettingScreen() }
-            binding.toolbar.setOnMenuItemClickListener {
-                if (it.itemId == R.id.sc_search) {
-                    binding.searchParent.apply {
-                        isVisible = isGone
-                        binding.searchBar.isIconified = isGone
-                        fadInAnimation()
-                    }
-                }
-                true
-            }
-            binding.searchBar.setOnQueryTextListener(model.onquery)
-            binding.searchBar.setOnCloseListener {
-                binding.searchParent.isGone = true
-                true
+            override fun onDrawerOpened(drawerView: View) {
             }
 
-//            binding.btPlaylist.setOnClickListener { gotoPlayerScreen() }
-
-            model.totalItemFlow.asLiveData().observe(viewLifecycleOwner) {
-                "${it} Berita".also { t -> binding.tvHeadTotal.text = t }
+            override fun onDrawerClosed(drawerView: View) {
             }
 
-            binding.playerFl.setOnClickListener {
-                binding.playerFl.playerView?.articleEntity?.let {
-                    gotoPlayerScreen()
-                }
+            override fun onDrawerStateChanged(newState: Int) {
             }
+        })
+    }
 
+    private fun initToolbarView() {
+        binding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            // eg: 20
+            val totalOffset = appBarLayout.totalScrollRange - appBarLayout.totalScrollRange * .5
+            // eg: 10, -10/-20 = .5
+            val offsetAsAlpha = verticalOffset.toFloat() / -totalOffset.toFloat()
+            val alpha = 1f - offsetAsAlpha
+            binding.gHeader.alpha = alpha
         }
 
-        Timber.d("end")
+        binding.toolbar.setNavigationOnClickListener { gotoRssSettingScreen() }
+        binding.toolbar.setOnMenuItemClickListener {
+            if (it.itemId == R.id.sc_search) {
+                binding.searchParent.apply {
+                    isVisible = isGone
+                    binding.searchBar.isIconified = isGone
+                    fadInAnimation()
+                }
+            }
+            true
+        }
+    }
+
+    private fun initPlayerView() {
+        binding.playerFl.setOnClickListener {
+            binding.playerFl.playerView?.articleEntity?.let {
+                gotoPlayerScreen()
+            }
+        }
+    }
+
+    private fun initSearchBarView() {
+        binding.searchBar.setOnQueryTextListener(model.onquery)
+        binding.searchBar.setOnCloseListener {
+            binding.searchParent.isGone = true
+            true
+        }
+
+        getFeedsFragment().setQueryDispatcher(model.queryFlow)
     }
 
     private fun gotoReadingScreen(payload: ArticleEntity) {
@@ -208,14 +207,28 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
         }
     }
 
+    var rssFragment: RssCollectionFragment? = null
     private fun gotoRssSettingScreen() {
-        findNavigation().submit {
-            fragmentManager.beginTransaction()
-                .add(containerId, RssCollectionFragment::class.java, null, "")
-                .hide(this@FeedFragment)
-                .addToBackStack("")
-                .commit()
+        if (rssFragment == null) {
+            rssFragment = binding.rssFragment.getFragment()
+            rssFragment?.parentFragmentManager?.setFragmentResultListener(
+                RssCollectionFragment.KEY_RESULT,
+                viewLifecycleOwner
+            ) { _, result ->
+                val menuTitle = result.getString(RssCollectionFragment.KEY_SELECTED_MENU_TITLE, "")
+
+                val guids = result.getString(RssCollectionFragment.KEY_SELECTED_RSS_GUID, null)
+                    ?.split(RssCollectionFragment.GUID_SEPARATOR)
+                    ?.filterNot(String::isNullOrBlank)
+
+                model.totalItemFlowTitle.tryEmit(menuTitle)
+                getFeedsFragment().setGuidsWhiteList(guids)
+                binding.root.closeDrawers()
+
+            }
+
         }
+        binding.root.openDrawer(Gravity.LEFT, true)
     }
 
     private fun gotoPlayerScreen() {

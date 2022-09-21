@@ -1,14 +1,14 @@
 package com.esabook.auzen.article.feeds
 
+import android.util.SparseArray
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class FeedVM : ViewModel() {
 
-    var totalItemFlowKey: String = ""
-    val tabPositionHome: Int = 1
-    var tabPositionCurrent = 1
+
+    var checkedFilter: SparseArray<FeedFilter> = SparseArray()
 
     val onquery: SearchView.OnQueryTextListener = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String?): Boolean {
@@ -23,6 +23,7 @@ class FeedVM : ViewModel() {
     }
 
     val queryFlow: MutableStateFlow<String?> = MutableStateFlow(null)
-    val totalItemFlow: MutableStateFlow<Int> = MutableStateFlow(0)
 
+    var totalItemFlowTitle: MutableStateFlow<String?> = MutableStateFlow("Semua")
+    val totalItemFlow: MutableStateFlow<Int> = MutableStateFlow(0)
 }

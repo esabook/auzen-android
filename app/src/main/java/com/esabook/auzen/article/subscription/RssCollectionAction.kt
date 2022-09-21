@@ -8,6 +8,6 @@ sealed class RssCollectionAction {
     data class MuteAutoSync(val rss: RssEntity, val actionState: ActionStateListener? = null)
     data class PurgeAndRebuild(val rss: RssEntity, val actionState: ActionStateListener? = null)
     data class Delete(val rss: RssEntity)
-
+    data class Filter(val rss: RssEntity)
 
 }

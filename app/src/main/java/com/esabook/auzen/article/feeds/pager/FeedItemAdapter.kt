@@ -91,7 +91,11 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
     }
 
     override fun isHeader(itemPosition: Int): Boolean {
-        return getItem(itemPosition) is FeedListItem.Separator
+        return try {
+            getItem(itemPosition) is FeedListItem.Separator
+        } catch (e: Exception) {
+            false
+        }
     }
 
     companion object {
