@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -15,8 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.esabook.auzen.App
 import com.esabook.auzen.R
-import com.esabook.auzen.article.player.PlayerView.PlayerState.LOADING
-import com.esabook.auzen.article.player.PlayerView.PlayerState.PLAYING
+import com.esabook.auzen.article.player.PlayerView.PlayerState.*
 import com.esabook.auzen.audio.tts.TTSManager
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.PlayerFragmentBinding
@@ -73,7 +73,11 @@ class PlayerFragment : BottomSheetDialogFragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.feeds.collectLatest2 { model.itemAdapter.submitList(it) }
+                model.feeds.collectLatest2 {
+                    model.itemAdapter.submitList(it)
+                    binding?.rvData?.isGone = it.isEmpty()
+                    binding?.empty?.root?.isVisible = it.isEmpty()
+                }
             }
         }
 
@@ -114,6 +118,12 @@ class PlayerFragment : BottomSheetDialogFragment() {
             addOnChangeListener { _, value, _ ->
                 changeSpeedFlow.tryEmit(value)
                 "${value}x".also { binding?.tvSpeechSpeedRate?.text = it }
+            }
+        }
+
+        binding?.btClean?.setOnClickListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                App.db.articleQueueDao().clearPlaylist()
             }
         }
 
@@ -173,20 +183,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
                         ).let {
                             it.anchorView = gBottom
                             it.setAction(getString(R.string.shuffle)) {
-                                App.db.launchIo {
-                                    val data = articleDao().loadAllWithUnread(true, 20)
-                                    var job: Job? = null
-                                    job = ioScope.launch {
-                                        data.collectLatest2 { list ->
-                                            list.forEach { art ->
-                                                articleQueueDao().update(art.guid, true)
-                                            }
-                                            player.speakPlay()
-                                            job?.cancel()
-                                            job = null
-                                        }
-                                    }
-                                }
+                                shufflePlaylist()
                             }
                         }.show()
                     }
@@ -195,6 +192,18 @@ class PlayerFragment : BottomSheetDialogFragment() {
                 }
             }
         }
+
+        binding?.empty?.run {
+            ivIllustration.setAnimation(R.raw.search_list)
+            tvHeader.text = getString(R.string.empty_playlist)
+            tvDescription.text = getString(R.string.empty_playlist_shuffle_ok)
+            tvButton.text = getString(R.string.shuffle)
+            tvButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+            tvButton.setOnClickListener {
+                shufflePlaylist()
+            }
+        }
+
         binding?.tvTitle?.setOnClickListener(onPlayerClickListener)
 
         binding?.btSetting?.setOnClickListener {
@@ -262,6 +271,25 @@ class PlayerFragment : BottomSheetDialogFragment() {
 
         dragHelper.attachToRecyclerView(binding!!.rvData)
         model.itemAdapter.dragHelper = dragHelper
+    }
+
+    private fun shufflePlaylist() {
+        App.db.launchIo {
+            val data = articleDao().loadAllWithUnread(true, 20)
+            var job: Job? = null
+            job = ioScope.launch {
+                data.collectLatest2 { list ->
+                    list.forEach { art ->
+                        articleQueueDao().update(art.guid, true)
+                    }
+                    if (player.playerState == STOPPED) {
+                        player.speakPlay()
+                    }
+                    job?.cancel()
+                    job = null
+                }
+            }
+        }
     }
 
     var onPlayerClickListener: View.OnClickListener? = null
