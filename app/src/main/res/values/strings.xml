@@ -30,4 +30,5 @@
     <string name="empty_header">Tidak Ada Berita</string>
     <string name="empty_playlist">Tidak ada Daftar Putar</string>
     <string name="search">Cari Berita</string>
+    <string name="sync_latest_news">Segarkan semua berita</string>
 </resources>

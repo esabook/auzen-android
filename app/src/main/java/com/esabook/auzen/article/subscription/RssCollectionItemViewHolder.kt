@@ -1,7 +1,6 @@
 package com.esabook.auzen.article.subscription
 
 import android.view.ViewGroup
-import androidx.core.text.parseAsHtml
 import androidx.core.view.isVisible
 import com.esabook.auzen.R
 import com.esabook.auzen.data.db.entity.RssEntity
@@ -25,14 +24,11 @@ class RssCollectionItemViewHolder(parent: ViewGroup) :
         val favicon = data.favicon ?: "https://www.google.com/s2/favicons?domain=${data.link}&sz=96"
         v.thumbnail.loadImageWithGlide(favicon)
 
-        v.tvCount.text = itemView.resources.getString(
-            R.string.rss_count_available_or_unread,
-            data.totalEntry,
-            data.totalEntryUnread
-        ).parseAsHtml()
+        v.tvCount.text = data.totalEntry.toString()
 
-        v.root.setOnClickListener {
+        v.root.setOnLongClickListener {
             v.gButton.isVisible = v.gButton.isVisible.not()
+            true
         }
 
     }

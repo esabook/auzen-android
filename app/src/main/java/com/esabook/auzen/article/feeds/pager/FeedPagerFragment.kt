@@ -1,9 +1,12 @@
 package com.esabook.auzen.article.feeds.pager
 
 import android.os.Bundle
+import android.util.SparseArray
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.os.bundleOf
+import androidx.core.util.containsKey
+import androidx.core.util.forEach
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -15,7 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
 import com.esabook.auzen.App
 import com.esabook.auzen.R
-import com.esabook.auzen.article.feeds.FeedFilterType
+import com.esabook.auzen.article.feeds.FeedFilter
 import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.player.PlayerView
 import com.esabook.auzen.article.readview.ReadFragment
@@ -31,6 +34,7 @@ import com.esabook.auzen.ui.StickHeaderItemDecoration
 import com.esabook.auzen.ui.viewBinding
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.take
 import timber.log.Timber
 
 class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
@@ -38,9 +42,8 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
     private val binding by viewBinding(FeedPagerFragmentBinding::bind)
     private val model: FeedPagerVM by viewModels()
     private lateinit var progressDialog: ProgressDialog
-
     private lateinit var feedOptionMenu: FeedOptionMenu
-    private lateinit var payloadFilterType: FeedFilterType
+
     private lateinit var player: PlayerView
 
     private var queryFlow: MutableStateFlow<String?>? = null
@@ -48,7 +51,6 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.d("start")
-        payloadFilterType = FeedFilterType.valueOf(arguments?.getString(PAYLOAD_FILTER_TYPE_NAME)!!)
 
         lifecycleScope.launch {
             progressDialog = ProgressDialog(requireContext())
@@ -69,7 +71,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
             sendFragmentResult()
             val refresh = it.refresh
             if (refresh is LoadState.NotLoading && refresh.endOfPaginationReached) {
-               maybeEmptyState()
+                maybeEmptyState()
             }
         }
 
@@ -81,7 +83,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         binding.swipeRefresh.setProgressViewOffset(true, 5, 100)
         binding.swipeRefresh.setOnRefreshListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                withContext(Dispatchers.IO) {
                     App.db.rssDao().getAll().collectLatest2 {
                         it.filter { r -> !r.muteAutoSync }.doSync {
                             binding.swipeRefresh.post2 { isRefreshing = false }
@@ -91,7 +93,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
             }
         }
 
-        if (payloadFilterType == FeedFilterType.PLAYLIST){
+        if (model.filters.size() == 1 && model.filters.containsKey(FeedFilter.PLAYLIST.ordinal)) {
             binding.empty.run {
                 ivIllustration.setAnimation(R.raw.search_list)
                 tvHeader.text = getString(R.string.empty_playlist)
@@ -121,18 +123,18 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             initAction()
-            model.filterType = payloadFilterType
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.feeds.collectLatest2 {
+                model.feeds.take(1).collectLatest2 {
                     model.adapterSubmitList(it, lifecycle)
                 }
+
             }
         }
 
         Timber.d("end")
     }
 
-    private fun maybeEmptyState(){
+    private fun maybeEmptyState() {
         val isEmpty = model.itemAdapter.itemCount < 1
         binding.rvData.isGone = isEmpty
         binding.empty.root.isVisible = isEmpty
@@ -140,10 +142,9 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     private fun sendFragmentResult() {
         try {
-            val bundleKey = getItemCountKey(payloadFilterType)
             val result = bundleOf(
-                RESULT_KEY to bundleKey,
-                bundleKey to model.itemAdapter.itemCount
+                RESULT_KEY to "itemCount",
+                "itemCount" to model.itemAdapter.itemCount
             )
             parentFragmentManager.setFragmentResult(RESULT_KEY, result)
         } catch (e: Exception) {
@@ -168,6 +169,19 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     fun setQueryDispatcher(queryFlow: MutableStateFlow<String?>) {
         this.queryFlow = queryFlow
+    }
+
+    fun setGuidsWhiteList(guid: List<String>?) {
+        model.guidsWhiteList = guid
+        Timber.d("setGuidsWhiteList: " + guid.toString())
+    }
+
+    fun setFilter(filter: SparseArray<FeedFilter>) {
+        model.filters.clear()
+        filter.forEach { key, value ->
+            model.filters.set(key, value)
+        }
+        model.invalidateDataList()
     }
 
     private fun onQueryObserver(q: String?) {
@@ -332,9 +346,6 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
     }
 
     companion object {
-        const val PAYLOAD_FILTER_TYPE_NAME = "payload_filter_type"
         const val RESULT_KEY = "feed_pager"
-
-        fun getItemCountKey(type: FeedFilterType) = type.name + "itemCount"
     }
 }

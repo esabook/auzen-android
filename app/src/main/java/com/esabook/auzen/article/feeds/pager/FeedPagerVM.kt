@@ -1,47 +1,33 @@
 package com.esabook.auzen.article.feeds.pager
 
+import android.util.SparseArray
+import androidx.core.util.isEmpty
+import androidx.core.util.keyIterator
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.esabook.auzen.App
-import com.esabook.auzen.article.feeds.FeedFilterType
+import com.esabook.auzen.article.feeds.FeedFilter
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.extentions.collectLatest2
 import com.esabook.auzen.extentions.relativeLocalizeDate2DayIndo
 import com.esabook.auzen.extentions.toDate
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 class FeedPagerVM : ViewModel() {
 
 
+    val filters: SparseArray<FeedFilter> = SparseArray()
+
     val itemAdapter by lazy { FeedItemAdapter() }
 
-    var filterType: FeedFilterType = FeedFilterType.ALL
-        set(value) {
-            field = value
-            _feeds = generateFeeds()
-
-        }
-
-    private fun pageSource() = when (filterType) {
-        FeedFilterType.ALL -> App.db.articleDao().getAll()
-        FeedFilterType.PLAYLIST -> App.db.articleQueueDao().getAllPaged()
-        FeedFilterType.READ -> App.db.articleDao().loadAllWithUnread(false)
-        FeedFilterType.UNREAD -> App.db.articleDao().loadAllWithUnread(true)
-        FeedFilterType.DUMMY -> App.db.articleDao().getAll() //todo
-    }
 
     private val pager = Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = true)) {
-        pageSource()
+        App.db.articleDao().getAll()
     }
 
     private fun generateFeeds() = pager.flow.map { data ->
@@ -78,11 +64,10 @@ class FeedPagerVM : ViewModel() {
             }
     }.cachedIn(viewModelScope)
 
-    private var _feeds = generateFeeds()
-    val feeds: Flow<PagingData<FeedListItem>>
-        get() = _feeds
+    val feeds: Flow<PagingData<FeedListItem>> = generateFeeds()
 
     private var feedsFilterQuery: String = ""
+
     val searchQueryAction = Channel<String>().also {
         viewModelScope.launch(Dispatchers.IO) {
             it.consumeAsFlow().debounce(500).collectLatest2 { s ->
@@ -91,35 +76,105 @@ class FeedPagerVM : ViewModel() {
 
                 withContext(Dispatchers.IO) {
                     feedsFilterQuery = s
-                    feeds.collectLatest2 {
-                        adapterSubmitList(it)
-                    }
+                    invalidateDataList()
                 }
             }
         }
     }
 
-    fun adapterSubmitList(aes: PagingData<FeedListItem>, lifecycle: Lifecycle? = null) =
-        viewModelScope.launch {
-            val filteredData = withContext(Dispatchers.IO) {
-                if (feedsFilterQuery.isBlank())
-                    aes
-                else
-                    aes.filter {
-                        if (it is FeedListItem.Item)
-                            it.articleEntity.title?.contains(feedsFilterQuery, true) == true
-                        else
-                            false
+    var guidsWhiteList: List<String>? = null
+        set(value) {
+            if (field == value)
+                return
+
+            viewModelScope.launch(Dispatchers.IO) {
+                field = value
+                invalidateDataList()
+            }
+        }
+
+
+    fun invalidateDataList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            feeds.take(1).collectLatest2 {
+                adapterSubmitList(it)
+            }
+        }
+
+    }
+
+    private fun isInFilter(article: ArticleEntity): Boolean {
+        var isInFilter = filters.isEmpty()
+        if (isInFilter)
+            return true
+
+        for (key in filters.keyIterator()) {
+            if (isInFilter)
+                return true
+
+            isInFilter = when (key) {
+                FeedFilter.PLAYLIST.ordinal -> isInFilter || article.isPlayListQueue
+                FeedFilter.READ.ordinal -> isInFilter || article.isUnread.not()
+                FeedFilter.UNREAD.ordinal -> isInFilter || article.isUnread
+                else -> false
+            }
+        }
+
+        Timber.d("isInFilter: ret = $isInFilter, playlist = ${article.isPlayListQueue}, unread = ${article.isUnread}")
+
+        return isInFilter
+    }
+
+    private fun isInFilterGuid(article: ArticleEntity): Boolean {
+        return guidsWhiteList.isNullOrEmpty() || guidsWhiteList?.contains(article.rssGuid) == true
+    }
+
+    private fun isInFilterQuery(article: ArticleEntity): Boolean {
+        if (feedsFilterQuery.isBlank())
+            return true
+
+        return article.title?.contains(feedsFilterQuery, true) == true
+    }
+
+    var filteringJob: Job? = null
+    fun adapterSubmitList(aes: PagingData<FeedListItem>, lifecycle: Lifecycle? = null) {
+        filteringJob?.cancel()
+        filteringJob = viewModelScope.launch {
+            try {
+                val filteredData = withContext(Dispatchers.IO) {
+                    if (feedsFilterQuery.isBlank() && guidsWhiteList.isNullOrEmpty() && filters.isEmpty()) {
+                        Timber.d("adapterSubmitList no filter")
+                        aes
+                    } else {
+                        Timber.d("adapterSubmitList filtering")
+                        aes.filter {
+                            if (it is FeedListItem.Item) {
+                                val isTitleInQuery = isInFilterQuery(it.articleEntity)
+                                val isGuidInWhiteList = isInFilterGuid(it.articleEntity)
+                                val isMatchWithFilter = isInFilter(it.articleEntity)
+
+                                Timber.d("adapterSubmitList filtering guid: $isGuidInWhiteList title: $isTitleInQuery filter: $isMatchWithFilter")
+                                return@filter isGuidInWhiteList
+                                        && isTitleInQuery
+                                        && isMatchWithFilter
+                            } else
+                                return@filter false
+                        }
                     }
+                }
+
+                if (lifecycle == null)
+                    itemAdapter.submitData(filteredData)
+                else
+                    itemAdapter.submitData(lifecycle, filteredData)
+
+                Timber.v("==" + aes.hashCode())
+            } catch (e: Exception) {
+                Timber.e(e)
             }
 
-            if (lifecycle == null)
-                itemAdapter.submitData(filteredData)
-            else
-                itemAdapter.submitData(lifecycle, filteredData)
-
-            Timber.v("==" + aes.hashCode())
         }
+    }
 
     fun invalidateItem(pos: Int, new: ArticleEntity, onFinish: Runnable) {
         viewModelScope.launch {

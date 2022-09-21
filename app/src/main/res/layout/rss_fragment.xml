@@ -6,26 +6,101 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/drawer_menu"
+        app:navigationIcon="@drawable/ic_round_settings" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:indeterminateAnimationType="disjoint"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:trackCornerRadius="1dp"
+        app:trackThickness="@dimen/dp_2" />
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_all"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_margin="@dimen/dp_16"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:cardCornerRadius="@dimen/dp_24"
+        app:cardBackgroundColor="@color/black_10">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackground"
+            android:padding="@dimen/dp_12">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_thumbnail"
+                android:layout_width="@dimen/dp_24"
+                android:layout_height="@dimen/dp_24"
+                app:tint="@color/black_60"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_round_storage" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_more"
+                android:layout_width="@dimen/dp_32"
+                android:layout_height="@dimen/dp_32"
+                android:background="?selectableItemBackgroundBorderless"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_round_keyboard_arrow_right" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_title"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black_80"
+                android:layout_marginLeft="@dimen/dp_12"
+                app:layout_constraintLeft_toRightOf="@id/iv_thumbnail"
+                app:layout_constraintRight_toLeftOf="@id/iv_more"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="Semua" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_subtitle"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black_80"
+                app:layout_constraintLeft_toLeftOf="@id/tv_title"
+                app:layout_constraintRight_toLeftOf="@id/iv_more"
+                app:layout_constraintTop_toBottomOf="@id/tv_title"
+                tools:text="700 Berita" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_data"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="@dimen/dp_4"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card_all"
         tools:itemCount="3"
         tools:listitem="@layout/rss_view_holder" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:baselineAlignBottom="true"
-        android:src="@drawable/ic_round_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_margin="@dimen/dp_32"
-        app:backgroundTint="@color/green_60"
-        android:contentDescription="@string/add_article_source" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -67,6 +67,11 @@ class RssCollectionItemAdapter : ListAdapter<RssEntity, RssCollectionItemViewHol
                 payload.link?.let { it1 -> it.context.copyToClipboard(it1) }
                 false
             }
+
+        }
+
+        holder.itemView.setOnClickListener {
+            onClick(holder, position, Filter(payload))
         }
     }
 
