@@ -134,6 +134,7 @@ object TTSManager {
                     || result == TextToSpeech.LANG_NOT_SUPPORTED
                 ) {
                     context.installMissingData()
+                    return@TextToSpeech
                 }
 
                 textToSpeech?.setAudioAttributes(audioAttrs.build())
@@ -182,7 +183,7 @@ object TTSManager {
     }
 
     fun playSpeechToSpeaker(inputText: String, playId: String = Random().nextInt().toString()) {
-        val result = textToSpeech!!.setLanguage(language)
+        val result = textToSpeech?.setLanguage(language)
         Timber.i(" textToSpeech.setLanguage result = $result")
         if (result == TextToSpeech.LANG_MISSING_DATA
             || result == TextToSpeech.LANG_NOT_SUPPORTED
@@ -192,14 +193,14 @@ object TTSManager {
 
         } else {
             val text = inputText
-            val state = textToSpeech!!.speak(
+            val state = textToSpeech?.speak(
                 text,
                 TextToSpeech.QUEUE_FLUSH,
                 null,
                 playId
             )
             Timber.i("speak state : $state")
-            textToSpeech!!.setOnUtteranceProgressListener(mUtteranceProgressListener)
+            textToSpeech?.setOnUtteranceProgressListener(mUtteranceProgressListener)
         }
     }
 
