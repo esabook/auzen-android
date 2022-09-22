@@ -178,6 +178,12 @@ class FeedPagerVM : ViewModel() {
 
     fun invalidateItem(pos: Int, new: ArticleEntity, onFinish: Runnable) {
         viewModelScope.launch {
+            if (isInFilter(new).not()) {
+                invalidateDataList()
+                onFinish.run()
+                return@launch
+            }
+
             withContext(Dispatchers.IO) {
                 itemAdapter.snapshot()
                     .firstOrNull {

@@ -14,6 +14,8 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.R
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment
+import com.esabook.auzen.article.feeds.pager.FeedPagerFragment.Companion.RESULT_KEY_EMPTY_STATE
+import com.esabook.auzen.article.feeds.pager.FeedPagerFragment.Companion.RESULT_KEY_TOTAL_ITEM
 import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.readview.ReadFragment
 import com.esabook.auzen.article.subscription.RssCollectionFragment
@@ -128,10 +130,14 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 FeedPagerFragment.RESULT_KEY,
                 viewLifecycleOwner
             ) { _, result ->
-                val key = result.getString(FeedPagerFragment.RESULT_KEY, "")
-                val itemCount = result.getInt(key, 0)
+                val itemCount = result.getInt(RESULT_KEY_TOTAL_ITEM, -1)
+                if (itemCount != -1) {
+                    model.totalItemFlow.tryEmit(itemCount)
+                }
 
-                model.totalItemFlow.tryEmit(itemCount)
+                if (result.getBoolean(RESULT_KEY_EMPTY_STATE, false)) {
+                    gotoRssSettingScreen()
+                }
             }
 
     }
@@ -229,6 +235,7 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
         }
         binding.root.openDrawer(Gravity.LEFT, true)
+        rssFragment?.invalidateData()
     }
 
     private fun gotoPlayerScreen() {
