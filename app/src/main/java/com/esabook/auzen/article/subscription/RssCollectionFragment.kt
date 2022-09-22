@@ -27,7 +27,7 @@ import timber.log.Timber
 
 class RssCollectionFragment : Fragment() {
     lateinit var binding: RssFragmentBinding
-    val model: RssCollectionVM by viewModels()
+    private val model: RssCollectionVM by viewModels()
 
     private val onItemClickListener = OnItemClickListener { _, _, payload ->
         viewLifecycleOwner.lifecycleScope.launch {
@@ -77,10 +77,16 @@ class RssCollectionFragment : Fragment() {
                         payload.rss.guid
                     )
                 }
+
+                is RssCollectionAction.Edit -> {
+                    RssAddDialog(requireContext())
+                        .setRss(payload.rss)
+                        .show()
+                }
             }
 
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.invalidateTotalArticle()
+                invalidateData()
             }
         }
     }
@@ -106,6 +112,12 @@ class RssCollectionFragment : Fragment() {
 
                 }
             }
+        }
+    }
+
+    fun invalidateData() {
+        lifecycleScope.launch {
+            model.invalidateTotalArticle()
         }
     }
 
