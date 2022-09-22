@@ -22,7 +22,6 @@ import com.esabook.auzen.article.feeds.FeedFilter
 import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.player.PlayerView
 import com.esabook.auzen.article.readview.ReadFragment
-import com.esabook.auzen.article.subscription.RssCollectionFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedPagerFragmentBinding
 import com.esabook.auzen.extentions.*
@@ -143,8 +142,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
     private fun sendFragmentResult() {
         try {
             val result = bundleOf(
-                RESULT_KEY to "itemCount",
-                "itemCount" to model.itemAdapter.itemCount
+                RESULT_KEY_TOTAL_ITEM to model.itemAdapter.itemCount
             )
             parentFragmentManager.setFragmentResult(RESULT_KEY, result)
         } catch (e: Exception) {
@@ -324,13 +322,8 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
 
     private fun gotoRssSettingScreen() {
-        findNavigation().submit {
-            fragmentManager.beginTransaction()
-                .add(containerId, RssCollectionFragment::class.java, null, "")
-                .hide(getLastVisibleFragment())
-                .addToBackStack("")
-                .commit()
-        }
+        val result = bundleOf(RESULT_KEY_EMPTY_STATE to true)
+        parentFragmentManager.setFragmentResult(RESULT_KEY, result)
     }
 
 
@@ -347,5 +340,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     companion object {
         const val RESULT_KEY = "feed_pager"
+        const val RESULT_KEY_TOTAL_ITEM = "feed_pager_total_item"
+        const val RESULT_KEY_EMPTY_STATE = "feed_pager_empty_state"
     }
 }
