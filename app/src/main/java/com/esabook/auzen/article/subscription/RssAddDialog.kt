@@ -52,12 +52,8 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
                     context.toast("Please Wait until job cancelled or completed")
             }
 
-            rssEntity.get()?.let {
-                rssUrl.isEnabled = false
-                rssUrl.setText(it.link)
-                etName.setText(it.title)
-                etName.isVisible = true
-            }
+            invalidateEditMode()
+
         }
         setContentView(binding!!.root)
     }
@@ -66,6 +62,17 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
         super.show()
         lifecycleScope.launch {
             initView()
+        }
+    }
+
+    private fun invalidateEditMode() {
+        binding?.run {
+            rssEntity.get()?.let {
+                rssUrl.isEnabled = false
+                rssUrl.setText(it.link)
+                etName.setText(it.title)
+                etName.isVisible = true
+            }
         }
     }
 
@@ -95,6 +102,10 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
                         )
                         App.db.rssDao().insertAll(rssEntity)
                         OpmlParseUtils.saveArticle(rssEntity, feed.entries)
+
+                        withContext(Dispatchers.Main) {
+                            setRss(rssEntity)
+                        }
                     }
                     setCancelable(true)
                     job = null
@@ -112,6 +123,7 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
 
     fun setRss(rss: RssEntity): RssAddDialog {
         rssEntity.set(rss)
+        invalidateEditMode()
         return this
     }
 }
