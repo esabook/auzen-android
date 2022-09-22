@@ -2,17 +2,21 @@ package com.esabook.auzen.article.player
 
 import android.view.ViewGroup
 import androidx.core.text.parseAsHtml
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import com.bumptech.glide.Glide
+import com.esabook.auzen.App
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.PlayerQueueItemViewHolderBinding
 import com.esabook.auzen.extentions.*
 import com.esabook.auzen.ui.ViewHolder
+import kotlinx.coroutines.*
 
 class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemViewHolderBinding>(
     parent,
     PlayerQueueItemViewHolderBinding::inflate
 ) {
+    companion object {
+        private val mainScope by lazy { MainScope().plus(CoroutineName("PlayerQueueItemViewHolder")) }
+    }
 
     fun setData(data: ArticleEntity) {
         itemView.postInvalidate()
@@ -33,14 +37,9 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
             v.ivThumbnail.loadImageWithGlide(
                 data.enclosure,
                 onFail = {
-                    isGone = true
-                },
-                onSuccess = {
-                    this.isVisible = true
+                    loadThumbnail(data)
                 }
             )
-        } else {
-            v.ivThumbnail.isGone = true
         }
 
 
@@ -51,4 +50,39 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
         }
 
     }
+
+    var thumbnailJob: Job? = null
+    private fun loadThumbnail(data: ArticleEntity?) {
+        if (data?.link == null) {
+            notifyRecycled()
+            return
+        }
+        thumbnailJob = mainScope.launch {
+            withContext(Dispatchers.IO) {
+                delay(500)
+                val ogArticle = OgParser.getOgEntity(data.link)
+                val newData = data.copy(
+                    description = data.description ?: ogArticle?.description,
+                    enclosure = ogArticle?.image,
+                    sourceTitle = ogArticle?.siteName
+                )
+
+                App.db.articleDao().update(newData)
+
+                if (newData.enclosure != null && newData.enclosure != data.enclosure)
+                    setData(newData)
+            }
+        }
+    }
+
+    fun notifyRecycled() {
+        thumbnailJob?.cancel()
+        thumbnailJob = null
+        binding.run {
+            Glide.with(ivFavicon).clear(ivFavicon)
+            Glide.with(ivThumbnail).clear(ivThumbnail)
+        }
+
+    }
+
 }

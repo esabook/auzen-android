@@ -36,6 +36,10 @@ class PlayerQueueAdapter : ListAdapter<ArticleEntity, PlayerQueueItemViewHolder>
 
     }
 
+    override fun onViewRecycled(holder: PlayerQueueItemViewHolder) {
+        holder.notifyRecycled()
+    }
+
 
     override fun onClick(holder: RecyclerView.ViewHolder, position: Int, payload: Any?) {
         (payload as? ArticleEntity)?.let {
@@ -55,6 +59,7 @@ class PlayerQueueAdapter : ListAdapter<ArticleEntity, PlayerQueueItemViewHolder>
                 newItem: ArticleEntity
             ): Boolean {
                 return oldItem.playListOrder == newItem.playListOrder
+                        && oldItem.enclosure == newItem.enclosure
             }
 
         }
