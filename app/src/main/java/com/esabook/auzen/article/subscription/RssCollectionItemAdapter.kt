@@ -68,6 +68,10 @@ class RssCollectionItemAdapter : ListAdapter<RssEntity, RssCollectionItemViewHol
                 false
             }
 
+            btEdit.setOnClickListener {
+                onClick(holder, position, Edit(payload))
+            }
+
         }
 
         holder.itemView.setOnClickListener {
@@ -87,7 +91,8 @@ class RssCollectionItemAdapter : ListAdapter<RssEntity, RssCollectionItemViewHol
             }
 
             override fun areContentsTheSame(oldItem: RssEntity, newItem: RssEntity): Boolean {
-                return oldItem.muteAutoSync == oldItem.muteAutoSync
+                return oldItem.title == newItem.title
+                        && oldItem.muteAutoSync == oldItem.muteAutoSync
                         && oldItem.totalEntryUnread == newItem.totalEntryUnread
                         && oldItem.totalEntry == newItem.totalEntry
             }

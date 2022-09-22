@@ -2,6 +2,7 @@ package com.esabook.auzen.article.subscription
 
 import android.content.Context
 import android.view.LayoutInflater
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.App
 import com.esabook.auzen.data.api.Api
@@ -17,10 +18,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 
 class RssAddDialog(context: Context) : BottomSheetDialog(context) {
 
     var binding: RssAddDialogBinding? = null
+    val rssEntity = AtomicReference<RssEntity>()
 
     private fun initView() {
         if (binding != null) return
@@ -36,10 +39,24 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
             }
 
             btClose.setOnClickListener {
-                if (job == null)
+                if (job == null) {
+                    rssEntity.get()?.let {
+                        val newName = etName.text.toString()
+                        App.db.launchIo {
+                            rssDao().update(it.copy(title = newName))
+                        }
+                    }
+
                     dismiss()
-                else
+                } else
                     context.toast("Please Wait until job cancelled or completed")
+            }
+
+            rssEntity.get()?.let {
+                rssUrl.isEnabled = false
+                rssUrl.setText(it.link)
+                etName.setText(it.title)
+                etName.isVisible = true
             }
         }
         setContentView(binding!!.root)
@@ -54,13 +71,14 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
 
 
     var job: Job? = null
+
     @Suppress("BlockingMethodInNonBlockingContext")
     private fun fetchRss(url: String) {
-       job = lifecycleScope.launch {
+        job = lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 try {
                     setCancelable(false)
-                    val xmlStream = Api.inputStream(url=url)
+                    val xmlStream = Api.inputStream(url = url)
                     val feed: SyndFeed = SyndFeedInput().build(XmlReader(xmlStream))
                     if (feed.title != null && feed.title.isNotBlank()) {
                         val rssEntity = RssEntity(
@@ -90,5 +108,10 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
             }
 
         }
+    }
+
+    fun setRss(rss: RssEntity): RssAddDialog {
+        rssEntity.set(rss)
+        return this
     }
 }

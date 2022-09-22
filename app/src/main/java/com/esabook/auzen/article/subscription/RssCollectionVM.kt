@@ -7,6 +7,7 @@ import com.esabook.auzen.extentions.collectLatest2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.withContext
 
 class RssCollectionVM : ViewModel() {
@@ -29,7 +30,7 @@ class RssCollectionVM : ViewModel() {
 
     suspend fun invalidateTotalArticle() {
         withContext(Dispatchers.IO) {
-            rssEntries.collectLatest2 { rssEntry ->
+            rssEntries.take(1).collectLatest2 { rssEntry ->
                 rssEntry.forEach { rss ->
                     val bool = App.db.articleDao().getIsUnreadStatusByRssGuid(rss.guid)
                     val total = bool.size
@@ -42,7 +43,6 @@ class RssCollectionVM : ViewModel() {
                     App.db.rssDao().update(rssEntity)
                 }
             }
-            fillAdapter()
         }
     }
 }

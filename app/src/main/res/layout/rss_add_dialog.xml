@@ -2,6 +2,7 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
     android:orientation="vertical"
     android:padding="@dimen/dp_24">
@@ -28,13 +29,21 @@
         android:layout_gravity="end"
         android:text="Cancel Fetch" />
 
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/bt_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_4"
         android:layout_gravity="end"
-        android:text="Close" />
+        android:text="Done" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_log"

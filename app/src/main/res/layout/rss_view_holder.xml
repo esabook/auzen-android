@@ -14,12 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackground"
-        android:padding="@dimen/dp_16">
+        android:paddingVertical="@dimen/dp_16">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/thumbnail"
             android:layout_width="@dimen/dp_24"
             android:layout_height="@dimen/dp_24"
+            android:layout_marginLeft="@dimen/dp_8"
             android:adjustViewBounds="true"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -59,10 +60,11 @@
             android:id="@+id/g_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_16"
+            android:background="?selectableItemBackground"
             app:cardBackgroundColor="@color/green_60"
             app:cardCornerRadius="@dimen/dp_16"
             app:cardElevation="0px"
-            android:background="?selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="@id/title"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@id/title">
@@ -75,75 +77,92 @@
                 tools:text="@string/rss_count_available_or_unread" />
         </androidx.cardview.widget.CardView>
 
-        <HorizontalScrollView
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/g_button"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:orientation="vertical"
             android:visibility="gone"
-            android:orientation="horizontal"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/thumbnail"
-            android:gravity="right"
             tools:visibility="visible">
 
-            <androidx.appcompat.widget.LinearLayoutCompat
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bt_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:drawablePadding="@dimen/dp_8"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_8"
+                android:text="Ubah"
+                app:drawableLeftCompat="@drawable/ic_round_edit" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/bt_share"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_round_share"
-                    android:tooltipText="Share or Hold &amp; Copy"
-                    app:layout_constraintEnd_toStartOf="@+id/bt_sync"
-                    app:layout_constraintTop_toBottomOf="@id/thumbnail"
-                    tools:targetApi="o" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bt_share"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:drawablePadding="@dimen/dp_8"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_8"
+                android:text="Bagikan tautan, atau Salin"
+                app:drawableLeftCompat="@drawable/ic_round_share" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/bt_sync"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_round_cloud_sync"
-                    android:tooltipText="Sync latest news"
-                    app:layout_constraintEnd_toStartOf="@+id/bt_mute"
-                    app:layout_constraintTop_toBottomOf="@id/thumbnail"
-                    tools:targetApi="o" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bt_sync"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:drawablePadding="@dimen/dp_8"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_8"
+                android:text="Singkronisasi artikel terbaru"
+                app:drawableLeftCompat="@drawable/ic_round_cloud_sync" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/bt_mute"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_round_sync_disabled"
-                    android:tooltipText="Exclude from auto sync"
-                    app:layout_constraintEnd_toStartOf="@+id/bt_clean"
-                    app:layout_constraintTop_toTopOf="@id/bt_sync"
-                    tools:targetApi="o" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bt_mute"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:drawablePadding="@dimen/dp_8"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_8"
+                android:text="Singkronisasi otomatis"
+                app:drawableLeftCompat="@drawable/ic_round_sync_disabled" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/bt_clean"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_round_clear"
-                    android:tooltipText="Clean local data"
-                    app:layout_constraintRight_toLeftOf="@id/bt_delete"
-                    app:layout_constraintTop_toTopOf="@id/bt_sync"
-                    tools:targetApi="o" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bt_clean"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:drawablePadding="@dimen/dp_8"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_8"
+                android:text="Bersihkan artikel"
+                app:drawableLeftCompat="@drawable/ic_round_clear_all" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/bt_delete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_delete_forever"
-                    android:tooltipText="Detele all related"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/bt_sync"
-                    tools:targetApi="o" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/bt_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?selectableItemBackground"
+                android:drawablePadding="@dimen/dp_8"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dp_8"
+                android:paddingVertical="@dimen/dp_8"
+                android:text="Hapus"
+                app:drawableLeftCompat="@drawable/ic_baseline_delete_forever" />
 
-            </androidx.appcompat.widget.LinearLayoutCompat>
-        </HorizontalScrollView>
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

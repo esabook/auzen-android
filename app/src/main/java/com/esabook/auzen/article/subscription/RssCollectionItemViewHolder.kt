@@ -17,9 +17,12 @@ class RssCollectionItemViewHolder(parent: ViewGroup) :
         val v = binding
         v.title.text = data.title
 
-        val autoSyncImg =
-            if (data.muteAutoSync) R.drawable.ic_round_sync_disabled else R.drawable.ic_round_sync
-        v.btMute.setImageResource(autoSyncImg)
+        val autoSyncImg = if (data.muteAutoSync)
+            R.drawable.ic_round_sync_disabled
+        else
+            R.drawable.ic_round_sync
+
+        v.btMute.setCompoundDrawablesWithIntrinsicBounds(autoSyncImg, 0, 0, 0)
 
         val favicon = data.favicon ?: "https://www.google.com/s2/favicons?domain=${data.link}&sz=96"
         v.thumbnail.loadImageWithGlide(favicon)
