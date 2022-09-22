@@ -1,6 +1,7 @@
 package com.esabook.auzen.extentions
 
 import android.text.format.DateUtils
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -35,8 +36,9 @@ val shortMonthNamesIndo = arrayOf(
     "Nov",
     "Des"
 )
-val weekDaysINDLong = arrayOf("Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu")
-val weekDaysINDShort = arrayOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
+val weekDaysINDLong =
+    arrayOf("Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
+val weekDaysINDShort = arrayOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min")
 
 private val sDateFormat = SimpleDateFormat(defaultDatePatterns[0], Locale.ENGLISH).apply {
     isLenient = false
@@ -101,7 +103,10 @@ fun Date.relativeLocalizeDate2DayIndo(): String {
         positiveValue > DateUtils.WEEK_IN_MILLIS -> try {
             getSimpleDateFormatIndo("EEEE, dd MMM yyyy").format(this)
         } catch (e: Exception) {
-            toString()
+            toString().also {
+                Timber.e(it)
+                Timber.e(e)
+            }
         }
 
         TimeUnit.MILLISECONDS.toDays(positiveValue) == 1L -> "Kemarin"
