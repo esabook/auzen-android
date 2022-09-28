@@ -21,6 +21,7 @@ import com.esabook.auzen.article.subscription.RssCollectionFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedFragmentBinding
 import com.esabook.auzen.extentions.fadInAnimation
+import com.esabook.auzen.local.KeyConstant
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
 import com.esabook.auzen.ui.viewBinding
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -73,6 +74,20 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
             viewLifecycleOwner,
             onBackPressedCallback
         )
+
+        parentFragmentManager.setFragmentResultListener(
+            KeyConstant.OPEN_PLAYER,
+            viewLifecycleOwner
+        ) { _, _ ->
+            gotoPlayerScreen()
+        }
+
+        childFragmentManager.setFragmentResultListener(
+            KeyConstant.OPEN_PLAYER,
+            viewLifecycleOwner
+        ) { _, _ ->
+            gotoPlayerScreen()
+        }
 
         lifecycleScope.launch {
             initHeaderView()
@@ -232,6 +247,9 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
     }
 
     private fun gotoPlayerScreen() {
+        if (binding.root.isDrawerOpen(Gravity.LEFT))
+            binding.root.closeDrawers()
+
         val fragment = PlayerFragment()
         fragment.onPlayerClickListener = View.OnClickListener {
             fragment.player.articleEntity?.let { it1 ->

@@ -1,9 +1,7 @@
 package com.esabook.auzen.article.subscription
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,16 +15,18 @@ import com.esabook.auzen.extentions.collectLatest2
 import com.esabook.auzen.extentions.doSync
 import com.esabook.auzen.extentions.post2
 import com.esabook.auzen.extentions.toast
+import com.esabook.auzen.local.KeyConstant
 import com.esabook.auzen.ui.ActionStateListener.ActionState.*
 import com.esabook.auzen.ui.OnItemClickListener
+import com.esabook.auzen.ui.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 
-class RssCollectionFragment : Fragment() {
-    lateinit var binding: RssFragmentBinding
+class RssCollectionFragment : Fragment(R.layout.rss_fragment) {
+    private val binding by viewBinding(RssFragmentBinding::bind)
     private val model: RssCollectionVM by viewModels()
 
     private val onItemClickListener = OnItemClickListener { _, _, payload ->
@@ -91,15 +91,6 @@ class RssCollectionFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = RssFragmentBinding.inflate(inflater)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.rvData.adapter = model.rssAdapter
         model.rssAdapter.onItemClickListener = onItemClickListener
@@ -140,6 +131,11 @@ class RssCollectionFragment : Fragment() {
                     RssAddDialog(requireContext()).show()
                     true
                 }
+                R.id.sc_player -> {
+                    parentFragmentManager.setFragmentResult(KeyConstant.OPEN_PLAYER, bundleOf())
+                    true
+                }
+
                 else -> false
             }
         }

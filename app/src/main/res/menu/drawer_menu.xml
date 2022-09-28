@@ -3,10 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/sc_player"
+        android:icon="@drawable/ic_round_headset"
+        app:showAsAction="ifRoom"
+        android:title="@string/playlist" />
+
+    <item
         android:id="@+id/sc_sync_all"
         android:icon="@drawable/ic_round_cloud_sync"
         app:showAsAction="ifRoom"
         android:title="@string/sync_latest_news" />
+
     <item
         android:id="@+id/sc_add_rss"
         android:icon="@drawable/ic_round_add"

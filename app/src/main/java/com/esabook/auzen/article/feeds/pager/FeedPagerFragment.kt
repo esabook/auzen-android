@@ -19,13 +19,13 @@ import androidx.paging.LoadState
 import com.esabook.auzen.App
 import com.esabook.auzen.R
 import com.esabook.auzen.article.feeds.FeedFilter
-import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.player.PlayerView
 import com.esabook.auzen.article.readview.ReadFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedPagerFragmentBinding
 import com.esabook.auzen.extentions.*
 import com.esabook.auzen.extentions.NewsParserUtils.toSpeakable
+import com.esabook.auzen.local.KeyConstant
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
 import com.esabook.auzen.ui.OnItemClickListener
 import com.esabook.auzen.ui.ProgressDialog
@@ -310,14 +310,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
 
     private fun gotoPlayerScreen() {
-        val fragment = PlayerFragment()
-        fragment.onPlayerClickListener = View.OnClickListener {
-            fragment.player.articleEntity?.let { it1 ->
-                gotoReadingScreen(it1)
-                fragment.dismissAllowingStateLoss()
-            }
-        }
-        fragment.show(parentFragmentManager, "")
+        parentFragmentManager.setFragmentResult(KeyConstant.OPEN_PLAYER, bundleOf())
     }
 
     companion object {
