@@ -1,6 +1,8 @@
 package com.esabook.auzen.article.player
 
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +23,8 @@ import com.esabook.auzen.audio.tts.TTSManager
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.PlayerFragmentBinding
 import com.esabook.auzen.extentions.collectLatest2
+import com.esabook.auzen.extentions.getClr
+import com.esabook.auzen.extentions.getDrw
 import com.esabook.auzen.extentions.post2
 import com.esabook.auzen.ui.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -214,8 +218,15 @@ class PlayerFragment : BottomSheetDialogFragment() {
             }
         }
 
+        val deleteIcon = resources.getDrw(R.drawable.ic_round_clear_all)
+        val intrinsicWidth = deleteIcon?.intrinsicWidth ?: 0
+        val intrinsicHeight = deleteIcon?.intrinsicHeight ?: 0
+        val background = ColorDrawable()
+        val backgroundColor = resources.getClr(R.color.red_400)
+
+
         dragHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT
         ) {
 
             override fun onMove(
@@ -265,7 +276,72 @@ class PlayerFragment : BottomSheetDialogFragment() {
                 viewHolder?.itemView?.elevation = 0F
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) = Unit
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                val itemView = viewHolder.itemView
+                val itemHeight = itemView.bottom - itemView.top
+                val isCanceled = dX == 0f && !isCurrentlyActive
+
+                if (isCanceled) {
+                    super.onChildDraw(
+                        c,
+                        recyclerView,
+                        viewHolder,
+                        dX,
+                        dY,
+                        actionState,
+                        isCurrentlyActive
+                    )
+                    return
+                }
+
+                // Draw the red delete background
+                background.color = backgroundColor
+                background.setBounds(itemView.left, itemView.top, dX.toInt(), itemView.bottom)
+                background.draw(c)
+
+                // Calculate position of delete icon
+                val deleteIconTop = itemView.top + (itemHeight - intrinsicHeight) / 2
+                val deleteIconMargin = (itemHeight - intrinsicHeight) / 2
+                val deleteIconLeft = deleteIconMargin - intrinsicWidth
+                val deleteIconBottom = deleteIconTop + intrinsicHeight
+
+                // Draw the delete icon
+                deleteIcon?.setBounds(
+                    deleteIconLeft,
+                    deleteIconTop,
+                    deleteIconMargin,
+                    deleteIconBottom
+                )
+                deleteIcon?.draw(c)
+
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (viewHolder is PlayerQueueItemViewHolder) {
+                    viewHolder.articleEntity?.guid?.let {
+                        App.db.launchIo { articleQueueDao().update(it, false) }
+                    }
+                }
+            }
+
+            override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float = .7F
 
         })
 
