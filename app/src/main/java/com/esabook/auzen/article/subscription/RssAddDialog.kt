@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
@@ -24,11 +25,23 @@ class RssAddDialog(context: Context) : BottomSheetDialog(context) {
 
     var binding: RssAddDialogBinding? = null
     val rssEntity = AtomicReference<RssEntity>()
+    val googleRssHeadline = "https://news.google.com/rss?hl=id&gl=ID&ceid=ID:id"
+    val googleRssSearch = "https://news.google.com/rss/search?q=%s&hl=id&gl=ID&ceid=ID:id"
 
     private fun initView() {
         if (binding != null) return
         binding = RssAddDialogBinding.inflate(LayoutInflater.from(context))
         binding?.run {
+
+            btSearchRssByGoogle.setOnClickListener {
+                val q = URLEncoder.encode(tvQuery.text.toString(), "utf-8")
+                if (q.isBlank())
+                    rssUrl.setText(googleRssHeadline)
+                else
+                    googleRssSearch.format(q).let { rssUrl.setText(it) }
+
+            }
+
             fetchRss.setOnClickListener {
                 val url = rssUrl.text.toString()
                 fetchRss(url)

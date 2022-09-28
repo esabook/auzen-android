@@ -8,6 +8,20 @@
     android:padding="@dimen/dp_24">
 
     <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/tv_query"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="People/Name/Publisher/Stock" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_search_rss_by_google"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_4"
+        android:layout_gravity="end"
+        android:text="Generate to google's rss url" />
+
+    <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/rss_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_4"
         android:layout_gravity="end"
-        android:text="Fetch Article" />
+        android:text="Fetch Article &amp; Save" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/bt_cancel"
