@@ -61,12 +61,10 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
 
         model.itemAdapter.addOnPagesUpdatedListener {
-            sendFragmentResult()
             maybeEmptyState()
         }
 
         model.itemAdapter.addLoadStateListener {
-            sendFragmentResult()
             val refresh = it.refresh
             if (refresh is LoadState.NotLoading && refresh.endOfPaginationReached) {
                 maybeEmptyState()
@@ -122,9 +120,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         viewLifecycleOwner.lifecycleScope.launch {
             initAction()
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.feeds.collectLatest2 {
-                    model.adapterSubmitList(it, lifecycle)
-                }
+                model.invalidateDataList()
             }
         }
 
@@ -135,27 +131,6 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         val isEmpty = model.itemAdapter.itemCount < 1
         binding.rvData.isGone = isEmpty
         binding.empty.root.isVisible = isEmpty
-    }
-
-    private var countingJob: Job? = null
-    private fun sendFragmentResult() {
-        countingJob?.cancel()
-        countingJob = lifecycleScope.launch {
-            try {
-                val result = withContext(Dispatchers.IO) {
-                    val itemCount = model.itemAdapter.itemCount - model.totalHeader
-
-                    bundleOf(
-                        RESULT_KEY_TOTAL_ITEM to itemCount
-                    )
-                }
-                parentFragmentManager.setFragmentResult(RESULT_KEY, result)
-            } catch (e: Exception) {
-                Timber.e(e)
-            }
-        }
-
-
     }
 
     override fun onResume() {
@@ -347,7 +322,6 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     companion object {
         const val RESULT_KEY = "feed_pager"
-        const val RESULT_KEY_TOTAL_ITEM = "feed_pager_total_item"
         const val RESULT_KEY_EMPTY_STATE = "feed_pager_empty_state"
     }
 }

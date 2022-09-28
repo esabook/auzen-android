@@ -25,5 +25,4 @@ class FeedVM : ViewModel() {
     val queryFlow: MutableStateFlow<String?> = MutableStateFlow(null)
 
     var totalItemFlowTitle: MutableStateFlow<String?> = MutableStateFlow("Semua")
-    val totalItemFlow: MutableStateFlow<Int> = MutableStateFlow(0)
 }

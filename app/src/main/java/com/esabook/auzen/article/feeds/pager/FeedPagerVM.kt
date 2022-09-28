@@ -17,7 +17,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicInteger
 
 class FeedPagerVM : ViewModel() {
 
@@ -25,17 +24,38 @@ class FeedPagerVM : ViewModel() {
     val filters: SparseArray<FeedFilter> = SparseArray()
 
     val itemAdapter by lazy { FeedItemAdapter() }
-    private val totalHeaderAtomicLong = AtomicInteger(0)
-    var totalHeader = 0
-        private set
 
-    private val pager = Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = true)) {
+    private fun generateFeeds() = Pager(
+        config = PagingConfig(pageSize = 20, enablePlaceholders = true)
+    ) {
         App.db.articleDao().getAll()
-    }
+    }.flow
+        .map { data ->
+            data.filter {
+                if (feedsFilterQuery.isBlank()
+                    && guidsWhiteList.isNullOrEmpty()
+                    && filters.isEmpty()
+                )
+                    return@filter true
 
-    private fun generateFeeds() = pager.flow.map { data ->
-        data.map { article -> FeedListItem.Item(article) }
-            .insertSeparators { before: FeedListItem?, after: FeedListItem? ->
+                val isTitleInQuery = isInFilterQuery(it)
+                if (isTitleInQuery.not())
+                    return@filter false
+
+                val isGuidInWhiteList = isInFilterGuid(it)
+                if (isGuidInWhiteList.not())
+                    return@filter false
+
+                val isMatchWithFilter = isInFilter(it)
+                if (isMatchWithFilter.not())
+                    return@filter false
+
+                return@filter true
+
+            }.map { article ->
+                FeedListItem.Item(article)
+
+            }.insertSeparators { before: FeedListItem?, after: FeedListItem? ->
                 return@insertSeparators if (before == null && after == null) {
                     // List is empty after fully loaded; return null to skip adding separator.
                     null
@@ -46,7 +66,6 @@ class FeedPagerVM : ViewModel() {
                     // Header
                     val dateLabel = after.articleEntity.pubDate?.toDate()
                         ?.relativeLocalizeDate2DayIndo()
-                    totalHeaderAtomicLong.getAndIncrement()
                     FeedListItem.Separator(dateLabel)
                 } else if (before is FeedListItem.Item
                     && after is FeedListItem.Item
@@ -58,7 +77,6 @@ class FeedPagerVM : ViewModel() {
                         ?.relativeLocalizeDate2DayIndo()
                     // Between two items that start with different letters.
                     if (beforeDate != afterDate) {
-                        totalHeaderAtomicLong.getAndIncrement()
                         FeedListItem.Separator(afterDate)
                     } else
                         null
@@ -67,7 +85,7 @@ class FeedPagerVM : ViewModel() {
                     null
                 }
             }
-    }.cachedIn(viewModelScope)
+        }.cachedIn(viewModelScope)
 
     val feeds: Flow<PagingData<FeedListItem>> = generateFeeds()
 
@@ -101,7 +119,7 @@ class FeedPagerVM : ViewModel() {
 
     fun invalidateDataList() {
         viewModelScope.launch(Dispatchers.IO) {
-            feeds.take(1).collectLatest2 {
+            generateFeeds().take(1).collectLatest2 {
                 adapterSubmitList(it)
             }
         }
@@ -146,40 +164,10 @@ class FeedPagerVM : ViewModel() {
         filteringJob?.cancel()
         filteringJob = viewModelScope.launch {
             try {
-                val filteredData = withContext(Dispatchers.IO) {
-                    if (feedsFilterQuery.isBlank() && guidsWhiteList.isNullOrEmpty() && filters.isEmpty()) {
-                        Timber.d("adapterSubmitList no filter")
-                        totalHeader = totalHeaderAtomicLong.get()
-                        aes
-                    } else {
-                        Timber.d("adapterSubmitList filtering")
-                        totalHeader = 0
-                        aes.filter {
-                            if (it is FeedListItem.Item) {
-                                val isTitleInQuery = isInFilterQuery(it.articleEntity)
-                                if (isTitleInQuery.not())
-                                    return@filter false
-
-                                val isGuidInWhiteList = isInFilterGuid(it.articleEntity)
-                                if (isGuidInWhiteList.not())
-                                    return@filter false
-
-                                val isMatchWithFilter = isInFilter(it.articleEntity)
-                                if (isMatchWithFilter.not())
-                                    return@filter false
-
-                                return@filter true
-
-                            } else
-                                return@filter false
-                        }
-                    }
-                }
-
                 if (lifecycle == null)
-                    itemAdapter.submitData(filteredData)
+                    itemAdapter.submitData(aes)
                 else
-                    itemAdapter.submitData(lifecycle, filteredData)
+                    itemAdapter.submitData(lifecycle, aes)
 
                 Timber.v("==" + aes.hashCode())
             } catch (e: Exception) {
