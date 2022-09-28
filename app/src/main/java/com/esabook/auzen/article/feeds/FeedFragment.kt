@@ -15,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.R
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment.Companion.RESULT_KEY_EMPTY_STATE
-import com.esabook.auzen.article.feeds.pager.FeedPagerFragment.Companion.RESULT_KEY_TOTAL_ITEM
 import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.readview.ReadFragment
 import com.esabook.auzen.article.subscription.RssCollectionFragment
@@ -70,7 +69,10 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         Timber.d("start")
-        requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            onBackPressedCallback
+        )
 
         lifecycleScope.launch {
             initHeaderView()
@@ -117,10 +119,6 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
     private fun initHeaderView() {
 
-        model.totalItemFlow.asLiveData().observe(viewLifecycleOwner) {
-            "$it Berita".also { t -> binding.tvHeadTotal.text = t }
-        }
-
         model.totalItemFlowTitle.asLiveData().observe(viewLifecycleOwner) {
             binding.tvHead.text = it
         }
@@ -130,11 +128,6 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
                 FeedPagerFragment.RESULT_KEY,
                 viewLifecycleOwner
             ) { _, result ->
-                val itemCount = result.getInt(RESULT_KEY_TOTAL_ITEM, -1)
-                if (itemCount != -1) {
-                    model.totalItemFlow.tryEmit(itemCount)
-                }
-
                 if (result.getBoolean(RESULT_KEY_EMPTY_STATE, false)) {
                     gotoRssSettingScreen()
                 }
