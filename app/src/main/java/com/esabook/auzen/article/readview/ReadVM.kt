@@ -98,13 +98,27 @@ class ReadVM : ViewModel() {
 
     suspend fun getHtmlContent(content: Article, articleEntity: ArticleEntity?): String {
         return withContext(Dispatchers.IO) {
+            var newContent = content.contentWithDocumentsCharsetOrUtf8
+
+            content.title?.let {
+                newContent = newContent?.replaceFirst(it.toRegex(), "")
+            }
+
+            content.byline?.let {
+                newContent = newContent?.replaceFirst(it, "")
+            }
+
+            articleEntity?.enclosure?.let {
+                newContent = newContent?.replaceFirst(it, "")
+            }
+
             bodyStyle
                 .replaceFirst(FONT_FIRST, selectedFont.name)
                 .replaceFirst(FONT_URL, selectedFont.fontLink)
                 .replaceFirst(TITLE, content.title ?: "")
                 .replace(COVER, articleEntity?.enclosure ?: "")
                 .replaceFirst(PUB_DATE, content.byline ?: "")
-                .replaceFirst(CONTENT, content.contentWithDocumentsCharsetOrUtf8 ?: "")
+                .replaceFirst(CONTENT, newContent ?: "")
         }
     }
 
