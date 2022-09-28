@@ -19,9 +19,20 @@ object NewsParserUtils {
     suspend fun getArticle(link: String): Article? = withContext(Dispatchers.IO) {
         try {
             val content = response(url = link).body.string()
+            getArticle(link, content)
+        } catch (e: Exception) {
+            Timber.e(e)
+            null
+        }
+
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    suspend fun getArticle(link: String, dom: String): Article? = withContext(Dispatchers.IO) {
+        try {
             val readability4J = Readability4JExtended(
                 link,
-                content,
+                dom,
                 regExUtil = AuzenRegexUtil(),
                 articleGrabber = AuzenArticleGrabber()
             )
@@ -31,7 +42,6 @@ object NewsParserUtils {
             Timber.e(e)
             null
         }
-
     }
 
     suspend fun Article.toSpeakable(): List<String> = withContext(Dispatchers.IO) {
