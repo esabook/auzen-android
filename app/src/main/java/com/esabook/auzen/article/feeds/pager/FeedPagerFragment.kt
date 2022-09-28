@@ -33,7 +33,6 @@ import com.esabook.auzen.ui.StickHeaderItemDecoration
 import com.esabook.auzen.ui.viewBinding
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.take
 import timber.log.Timber
 
 class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
@@ -123,10 +122,9 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         viewLifecycleOwner.lifecycleScope.launch {
             initAction()
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                model.feeds.take(1).collectLatest2 {
+                model.feeds.collectLatest2 {
                     model.adapterSubmitList(it, lifecycle)
                 }
-
             }
         }
 
@@ -139,15 +137,24 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         binding.empty.root.isVisible = isEmpty
     }
 
+    private var countingJob: Job? = null
     private fun sendFragmentResult() {
-        try {
-            val result = bundleOf(
-                RESULT_KEY_TOTAL_ITEM to model.itemAdapter.itemCount
-            )
-            parentFragmentManager.setFragmentResult(RESULT_KEY, result)
-        } catch (e: Exception) {
-            Timber.e(e)
+        countingJob?.cancel()
+        countingJob = lifecycleScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    val itemCount = model.itemAdapter.itemCount - model.totalHeader
+
+                    bundleOf(
+                        RESULT_KEY_TOTAL_ITEM to itemCount
+                    )
+                }
+                parentFragmentManager.setFragmentResult(RESULT_KEY, result)
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
         }
+
 
     }
 

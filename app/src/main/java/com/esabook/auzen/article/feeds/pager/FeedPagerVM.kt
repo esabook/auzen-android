@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicInteger
 
 class FeedPagerVM : ViewModel() {
 
@@ -24,7 +25,9 @@ class FeedPagerVM : ViewModel() {
     val filters: SparseArray<FeedFilter> = SparseArray()
 
     val itemAdapter by lazy { FeedItemAdapter() }
-
+    private val totalHeaderAtomicLong = AtomicInteger(0)
+    var totalHeader = 0
+        private set
 
     private val pager = Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = true)) {
         App.db.articleDao().getAll()
@@ -43,6 +46,7 @@ class FeedPagerVM : ViewModel() {
                     // Header
                     val dateLabel = after.articleEntity.pubDate?.toDate()
                         ?.relativeLocalizeDate2DayIndo()
+                    totalHeaderAtomicLong.getAndIncrement()
                     FeedListItem.Separator(dateLabel)
                 } else if (before is FeedListItem.Item
                     && after is FeedListItem.Item
@@ -54,6 +58,7 @@ class FeedPagerVM : ViewModel() {
                         ?.relativeLocalizeDate2DayIndo()
                     // Between two items that start with different letters.
                     if (beforeDate != afterDate) {
+                        totalHeaderAtomicLong.getAndIncrement()
                         FeedListItem.Separator(afterDate)
                     } else
                         null
@@ -144,19 +149,27 @@ class FeedPagerVM : ViewModel() {
                 val filteredData = withContext(Dispatchers.IO) {
                     if (feedsFilterQuery.isBlank() && guidsWhiteList.isNullOrEmpty() && filters.isEmpty()) {
                         Timber.d("adapterSubmitList no filter")
+                        totalHeader = totalHeaderAtomicLong.get()
                         aes
                     } else {
                         Timber.d("adapterSubmitList filtering")
+                        totalHeader = 0
                         aes.filter {
                             if (it is FeedListItem.Item) {
                                 val isTitleInQuery = isInFilterQuery(it.articleEntity)
-                                val isGuidInWhiteList = isInFilterGuid(it.articleEntity)
-                                val isMatchWithFilter = isInFilter(it.articleEntity)
+                                if (isTitleInQuery.not())
+                                    return@filter false
 
-                                Timber.d("adapterSubmitList filtering guid: $isGuidInWhiteList title: $isTitleInQuery filter: $isMatchWithFilter")
-                                return@filter isGuidInWhiteList
-                                        && isTitleInQuery
-                                        && isMatchWithFilter
+                                val isGuidInWhiteList = isInFilterGuid(it.articleEntity)
+                                if (isGuidInWhiteList.not())
+                                    return@filter false
+
+                                val isMatchWithFilter = isInFilter(it.articleEntity)
+                                if (isMatchWithFilter.not())
+                                    return@filter false
+
+                                return@filter true
+
                             } else
                                 return@filter false
                         }
