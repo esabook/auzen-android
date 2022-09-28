@@ -17,9 +17,11 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
     companion object {
         private val mainScope by lazy { MainScope().plus(CoroutineName("PlayerQueueItemViewHolder")) }
     }
+    var articleEntity: ArticleEntity? = null
 
     fun setData(data: ArticleEntity) {
-        itemView.postInvalidate()
+        articleEntity = data
+
         val v = binding
         v.tvTitle.text = data.title
             ?.removeNewLine()
@@ -78,6 +80,7 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
     fun notifyRecycled() {
         thumbnailJob?.cancel()
         thumbnailJob = null
+        articleEntity = null
         binding.run {
             Glide.with(ivFavicon).clear(ivFavicon)
             Glide.with(ivThumbnail).clear(ivThumbnail)
