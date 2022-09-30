@@ -1,0 +1,19 @@
+{
+  "unlikelyCandidate": "|paradetail",
+  "byLine": "",
+  "positiveCandidate": "",
+  "parser_dict": [
+    {
+      "domain_matcher": "^*kompas.tv",
+      "xpath_content_matcher": "div.paragraph, div#paragraph"
+    },
+    {
+      "domain_matcher": "^*.kontan.co.id",
+      "xpath_content_matcher": "div.tmpt-desk-kon"
+    },
+    {
+      "domain_matcher": "news.detik.com",
+      "xpath_content_matcher": "div.detail__body-text"
+    }
+  ]
+}
