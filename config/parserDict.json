@@ -1,19 +1,32 @@
 {
-  "unlikelyCandidate": "|paradetail",
+  "unlikelyCandidate": "|paradetail|^*avatar",
   "byLine": "",
   "positiveCandidate": "",
   "parser_dict": [
     {
       "domain_matcher": "^*kompas.tv",
-      "xpath_content_matcher": "div.paragraph, div#paragraph"
+      "xpath_content_matcher": "div.paragraph, div#paragraph",
+      "all_page_param": "page=all"
     },
     {
       "domain_matcher": "^*.kontan.co.id",
-      "xpath_content_matcher": "div.tmpt-desk-kon"
+      "xpath_content_matcher": "div.tmpt-desk-kon, div.sec_kiri",
+      "all_page_param": "page=all"
     },
     {
-      "domain_matcher": "news.detik.com",
-      "xpath_content_matcher": "div.detail__body-text"
+      "domain_matcher": "^*detik.com",
+      "xpath_content_matcher": "div.detail__body-text",
+      "all_page_param": "single=1"
+    },
+    {
+      "domain_matcher": "^*cnbcindonesia.com",
+      "xpath_content_matcher": "div.media_artikel, div.detail_wrap",
+      "all_page_param": ""
+    },
+    {
+      "domain_matcher": "^*sindonews.com",
+      "xpath_content_matcher": "div.detail-caption-img, div.detail-desc",
+      "all_page_param": "showpage=all"
     }
   ]
 }

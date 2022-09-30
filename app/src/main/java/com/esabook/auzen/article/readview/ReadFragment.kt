@@ -55,7 +55,6 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     }
 
 
-
     private var selectedFontName: String? = null
         get() = pref?.getString(FONT_NAME_KEY, null)
         set(value) {
@@ -147,9 +146,9 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     private fun initView() = binding.let { b ->
 
         model.article.observe(viewLifecycleOwner) {
-            if (it?.uri != b.web.url) {
-                renderArticle()
-            }
+//            if (it?.uri != b.web.url) {
+            renderArticle()
+//            }
 
             renderToolbar(model.articleEntity?.sourceLink)
         }
@@ -224,7 +223,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
         val player = b.playerFl.playerView
         b.btPlay2.setOnClickListener {
-            if (model.article.value?.uri != b.web.url) {
+            if (model.readibilityModeOn.value?.not() == true) {
                 context?.toast("Perlu ganti mode baca untuk memulai")
                 return@setOnClickListener
             }

@@ -11,8 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/drawer_menu"
-        app:navigationIcon="@drawable/ic_round_settings" />
+        app:menu="@menu/drawer_menu" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress_horizontal"

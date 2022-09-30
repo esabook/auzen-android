@@ -4,12 +4,11 @@ import androidx.core.net.toUri
 import androidx.core.text.parseAsHtml
 import com.esabook.auzen.data.api.Api.response
 import com.esabook.auzen.data.db.entity.ArticleEntity
-import com.esabook.auzen.parser.AuzenArticleGrabber
-import com.esabook.auzen.parser.AuzenRegexUtil
+import com.esabook.auzen.parser.AuzenArticleParser
+import com.esabook.auzen.parser.ParserConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.dankito.readability4j.Article
-import net.dankito.readability4j.extended.Readability4JExtended
 import timber.log.Timber
 import java.util.*
 
@@ -18,8 +17,17 @@ object NewsParserUtils {
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun getArticle(link: String): Article? = withContext(Dispatchers.IO) {
         try {
-            val content = response(url = link).body.string()
-            getArticle(link, content)
+            var allPageLink = appendUrlForAllPage(link)
+            var response = response(url = allPageLink)
+            val redirectedLink = response.request.url.toString()
+
+            if (link != redirectedLink) {
+                allPageLink = appendUrlForAllPage(redirectedLink)
+                response = response(url = allPageLink)
+            }
+
+            val content = response.body.string()
+            getArticle(redirectedLink, content)
         } catch (e: Exception) {
             Timber.e(e)
             null
@@ -27,17 +35,26 @@ object NewsParserUtils {
 
     }
 
+
+    private fun appendUrlForAllPage(link: String): String {
+        val ret = StringBuilder(link)
+        ParserConfig.findParserDictOrNull(link)?.let {
+            if (it.allPageParam.isNotBlank()) {
+                ret.append(
+                    if (link.contains("?"))
+                        it.allPageParam
+                    else
+                        """?${it.allPageParam}"""
+                )
+            }
+        }
+        return ret.toString()
+    }
+
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun getArticle(link: String, dom: String): Article? = withContext(Dispatchers.IO) {
         try {
-            val readability4J = Readability4JExtended(
-                link,
-                dom,
-                regExUtil = AuzenRegexUtil(),
-                articleGrabber = AuzenArticleGrabber()
-            )
-
-            readability4J.parse()
+            AuzenArticleParser(link, dom).parse()
         } catch (e: Exception) {
             Timber.e(e)
             null
