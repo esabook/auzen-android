@@ -8,7 +8,10 @@ import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.extentions.NewsParserUtils
 import com.esabook.auzen.extentions.NewsParserUtils.toArticleEntity
 import com.esabook.auzen.extentions.collectLatest2
+import com.esabook.auzen.extentions.toDate
+import com.esabook.auzen.extentions.toStringWithPattern
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.dankito.readability4j.Article
@@ -57,12 +60,14 @@ class ReadVM : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (isUseLocal && article.value?.uri != articleLink) {
-                    articleEntityRaw.collectLatest2(this@ReadVM::onCollectArticleEntityRaw)
+                    articleEntityRaw.take(1).collectLatest2(this@ReadVM::onCollectArticleEntityRaw)
                 }
 
                 val link = articleLink
 
                 val article = NewsParserUtils.getArticle(link)
+                article?.uri?.also { articleLink = it }
+
                 if (articleEntity == null && article != null) {
                     val articleEntity = article.toArticleEntity()
                     App.db.articleDao().insertAll(articleEntity)
@@ -117,7 +122,10 @@ class ReadVM : ViewModel() {
                 .replaceFirst(FONT_URL, selectedFont.fontLink)
                 .replaceFirst(TITLE, content.title ?: "")
                 .replace(COVER, articleEntity?.enclosure ?: "")
-                .replaceFirst(PUB_DATE, content.byline ?: "")
+                .replaceFirst(
+                    PUB_DATE,
+                    articleEntity?.pubDate?.toDate()?.toStringWithPattern(useIndo = true) ?: ""
+                )
                 .replaceFirst(CONTENT, newContent ?: "")
         }
     }
@@ -200,8 +208,9 @@ class ReadVM : ViewModel() {
           </head>
           <body>
           <h2>$TITLE</h2>
+          <small></h2>$PUB_DATE</h2></small>
+          
           <img src="$COVER" alt=""/>
-          <small>$PUB_DATE</small>
           <hr/>
           <br/>
           $CONTENT

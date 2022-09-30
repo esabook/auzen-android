@@ -124,6 +124,13 @@ class RssCollectionFragment : Fragment(R.layout.rss_fragment) {
                                 binding.progressHorizontal.post2 { hide() }
                             }
                         }
+
+                        (requireActivity().application as? App)?.let {
+                            lifecycleScope.launch {
+                                it.updateParserDict()
+                            }
+                        }
+
                     }
                     true
                 }

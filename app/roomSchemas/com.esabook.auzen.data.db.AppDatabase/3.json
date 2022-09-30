@@ -1,0 +1,236 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "8930492b0e1a1a21dd177bef83f402bc",
+    "entities": [
+      {
+        "tableName": "rss",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`guid` TEXT NOT NULL, `title` TEXT, `link` TEXT, `description` TEXT, `last_build_date` TEXT, `copyright` TEXT, `category` TEXT, `favicon` TEXT, `total_entry` INTEGER NOT NULL, `total_entry_unread` INTEGER NOT NULL, `mute_auto_sync` INTEGER NOT NULL, PRIMARY KEY(`guid`))",
+        "fields": [
+          {
+            "fieldPath": "guid",
+            "columnName": "guid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "link",
+            "columnName": "link",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastBuildDate",
+            "columnName": "last_build_date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "copyright",
+            "columnName": "copyright",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "favicon",
+            "columnName": "favicon",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "totalEntry",
+            "columnName": "total_entry",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalEntryUnread",
+            "columnName": "total_entry_unread",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "muteAutoSync",
+            "columnName": "mute_auto_sync",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "guid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "article",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`guid` TEXT NOT NULL, `rss_guid` TEXT NOT NULL, `title` TEXT, `link` TEXT, `description` TEXT, `author` TEXT, `pub_date` TEXT, `pub_date_timestamp` INTEGER, `enclosure` TEXT, `source_link` TEXT, `source_title` TEXT, `is_unread` INTEGER NOT NULL, `is_playlist_queue` INTEGER NOT NULL, `playlist_order` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`guid`))",
+        "fields": [
+          {
+            "fieldPath": "guid",
+            "columnName": "guid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rssGuid",
+            "columnName": "rss_guid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "link",
+            "columnName": "link",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pubDate",
+            "columnName": "pub_date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pubDateTimeStamp",
+            "columnName": "pub_date_timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "enclosure",
+            "columnName": "enclosure",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sourceLink",
+            "columnName": "source_link",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "sourceTitle",
+            "columnName": "source_title",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isUnread",
+            "columnName": "is_unread",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPlayListQueue",
+            "columnName": "is_playlist_queue",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playListOrder",
+            "columnName": "playlist_order",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "guid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_article_guid_link",
+            "unique": true,
+            "columnNames": [
+              "guid",
+              "link"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_article_guid_link` ON `${TABLE_NAME}` (`guid`, `link`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "parser_dict",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`domain_matcher` TEXT NOT NULL, `xpath_content_matcher` TEXT NOT NULL, `all_page_param` TEXT NOT NULL, PRIMARY KEY(`domain_matcher`))",
+        "fields": [
+          {
+            "fieldPath": "domainMatcher",
+            "columnName": "domain_matcher",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "xpathContentMatcher",
+            "columnName": "xpath_content_matcher",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "allPageParam",
+            "columnName": "all_page_param",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "domain_matcher"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8930492b0e1a1a21dd177bef83f402bc')"
+    ]
+  }
+}

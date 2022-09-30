@@ -5,16 +5,18 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.esabook.auzen.data.db.dao.ArticleDao
 import com.esabook.auzen.data.db.dao.ArticleQueueDao
+import com.esabook.auzen.data.db.dao.ParserDictDao
 import com.esabook.auzen.data.db.dao.RssDao
 import com.esabook.auzen.data.db.entity.ArticleEntity
+import com.esabook.auzen.data.db.entity.ParserDictEntity
 import com.esabook.auzen.data.db.entity.RssEntity
 import kotlinx.coroutines.*
 
 @Database(
-    entities = [RssEntity::class, ArticleEntity::class],
-    version = 2,
+    entities = [RssEntity::class, ArticleEntity::class, ParserDictEntity::class],
+    version = 3,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2)]
+    autoMigrations = [AutoMigration(from = 2, to = 3)]
 )
 abstract class AppDatabase : RoomDatabase() {
     val ioScope = MainScope() + Dispatchers.IO
@@ -30,4 +32,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun rssDao(): RssDao
     abstract fun articleDao(): ArticleDao
     abstract fun articleQueueDao(): ArticleQueueDao
+    abstract fun parserDictDao(): ParserDictDao
 }
