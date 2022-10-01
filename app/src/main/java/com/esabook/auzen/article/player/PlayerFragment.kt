@@ -12,6 +12,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -351,7 +352,8 @@ class PlayerFragment : BottomSheetDialogFragment() {
 
     private fun shufflePlaylist() {
         App.db.launchIo {
-            val data = articleDao().loadAllWithUnread(true, 20)
+
+            val data = articleDao().loadAllWithUnread(true, 20, selectedRssSource.value)
             var job: Job? = null
             job = ioScope.launch {
                 data.collectLatest2 { list ->
@@ -374,4 +376,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
             binding?.tvTitle?.setOnClickListener(field)
         }
 
+    companion object {
+        val selectedRssSource = MutableLiveData<String>()
+    }
 }
