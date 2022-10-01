@@ -5,7 +5,6 @@ import android.util.SparseArray
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.os.bundleOf
-import androidx.core.util.containsKey
 import androidx.core.util.forEach
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -88,34 +87,6 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
                 }
             }
         }
-
-        if (model.filters.size() == 1 && model.filters.containsKey(FeedFilter.PLAYLIST.ordinal)) {
-            binding.empty.run {
-                ivIllustration.setAnimation(R.raw.search_list)
-                tvHeader.text = getString(R.string.empty_playlist)
-                tvDescription.text = getString(R.string.empty_playlist_shuffle_ok)
-                tvButton.text = getString(R.string.shuffle)
-                tvButton.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-                tvButton.setOnClickListener {
-                    App.db.launchIo {
-                        val data = articleDao().loadAllWithUnread(true, 20)
-                        var job: Job? = null
-                        job = ioScope.launch {
-                            data.collectLatest2 { list ->
-                                list.forEach { art ->
-                                    articleQueueDao().update(art.guid, true)
-                                }
-                                player.speakPlay()
-                                gotoPlayerScreen()
-                                job?.cancel()
-                                job = null
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
 
         viewLifecycleOwner.lifecycleScope.launch {
             initAction()

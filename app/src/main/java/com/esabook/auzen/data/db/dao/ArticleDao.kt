@@ -46,6 +46,10 @@ interface ArticleDao {
     @Query("SELECT * FROM article WHERE is_unread = :isUnRead ORDER by pub_date_timestamp DESC")
     fun loadAllWithUnread(isUnRead: Boolean): PagingSource<Int, ArticleEntity>
 
-    @Query("SELECT * FROM article WHERE is_unread = :isUnRead ORDER by pub_date_timestamp DESC LIMIT :limit")
-    fun loadAllWithUnread(isUnRead: Boolean, limit: Int): Flow<List<ArticleEntity>>
+    @Query("SELECT * FROM article WHERE is_unread = :isUnRead AND (NULL = :rssGuid OR :rssGuid LIKE '%'||rss_guid||'%' ) ORDER by pub_date_timestamp DESC LIMIT :limit")
+    fun loadAllWithUnread(
+        isUnRead: Boolean,
+        limit: Int,
+        rssGuid: String?
+    ): Flow<List<ArticleEntity>>
 }

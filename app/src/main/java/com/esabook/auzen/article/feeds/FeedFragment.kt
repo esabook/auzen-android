@@ -237,6 +237,7 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
                 model.totalItemFlowTitle.tryEmit(menuTitle)
                 getFeedsFragment().setGuidsWhiteList(guids)
+                PlayerFragment.selectedRssSource.postValue(guids?.joinToString())
                 binding.root.closeDrawers()
 
             }
