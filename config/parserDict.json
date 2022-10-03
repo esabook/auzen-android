@@ -21,7 +21,7 @@
     {
       "domain_matcher": "^*cnbcindonesia.com",
       "xpath_content_matcher": "div.media_artikel, div.detail_wrap",
-      "all_page_param": ""
+      "all_page_param": "page=all"
     },
     {
       "domain_matcher": "^*sindonews.com",
