@@ -53,14 +53,21 @@
         app:trackCornerRadius="1dp"
         app:trackThickness="@dimen/dp_2" />
 
-    <com.esabook.auzen.ui.WebView
-        android:id="@+id/web"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:scrollbarThumbVertical="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@id/g_button"
-        app:layout_constraintTop_toBottomOf="@id/player_fl" />
+        app:layout_constraintTop_toBottomOf="@id/player_fl">
 
+        <com.esabook.auzen.ui.WebView
+            android:id="@+id/web"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarThumbVertical="@android:color/transparent" />
+
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/g_button"
