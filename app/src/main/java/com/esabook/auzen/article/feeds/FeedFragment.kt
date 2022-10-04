@@ -68,7 +68,6 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         Timber.d("start")
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
@@ -221,30 +220,38 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
         }
     }
 
-    var rssFragment: RssCollectionFragment? = null
+    private var rssFragment: RssCollectionFragment? = null
     private fun gotoRssSettingScreen() {
-        if (rssFragment == null) {
-            rssFragment = binding.rssFragment.getFragment()
-            rssFragment?.parentFragmentManager?.setFragmentResultListener(
-                RssCollectionFragment.KEY_RESULT,
-                viewLifecycleOwner
-            ) { _, result ->
-                val menuTitle = result.getString(RssCollectionFragment.KEY_SELECTED_MENU_TITLE, "")
+        lifecycleScope.launch {
+            if (rssFragment == null) {
 
-                val guids = result.getString(RssCollectionFragment.KEY_SELECTED_RSS_GUID, null)
-                    ?.split(RssCollectionFragment.GUID_SEPARATOR)
-                    ?.filterNot(String::isNullOrBlank)
+                rssFragment = binding.rssFragment.getFragment()
 
-                model.totalItemFlowTitle.tryEmit(menuTitle)
-                getFeedsFragment().setGuidsWhiteList(guids)
-                PlayerFragment.selectedRssSource.postValue(guids?.joinToString())
-                binding.root.closeDrawers()
+                rssFragment?.parentFragmentManager?.setFragmentResultListener(
+                    RssCollectionFragment.KEY_RESULT,
+                    viewLifecycleOwner
+                ) { _, result ->
+                    lifecycleScope.launch {
+                        val menuTitle =
+                            result.getString(RssCollectionFragment.KEY_SELECTED_MENU_TITLE, "")
 
+                        val guids =
+                            result.getString(RssCollectionFragment.KEY_SELECTED_RSS_GUID, null)
+                                ?.split(RssCollectionFragment.GUID_SEPARATOR)
+                                ?.filterNot(String::isNullOrBlank)
+
+                        model.totalItemFlowTitle.tryEmit(menuTitle)
+                        getFeedsFragment().setGuidsWhiteList(guids)
+                        PlayerFragment.selectedRssSource.postValue(guids?.joinToString())
+                        binding.root.closeDrawers()
+                    }
+                }
             }
 
+
+            binding.root.openDrawer(Gravity.LEFT, true)
+            rssFragment?.invalidateData()
         }
-        binding.root.openDrawer(Gravity.LEFT, true)
-        rssFragment?.invalidateData()
     }
 
     private fun gotoPlayerScreen() {
