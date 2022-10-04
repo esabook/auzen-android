@@ -165,6 +165,12 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
             }
             renderArticle()
         }
+
+        b.swipeRefresh.setProgressViewOffset(true, 5, 100)
+        b.swipeRefresh.setOnRefreshListener {
+            renderArticle()
+        }
+
         b.web.settings.javaScriptEnabled = true
         b.web.settings.domStorageEnabled = true
         b.web.setLayerType(View.LAYER_TYPE_HARDWARE, null)
@@ -189,6 +195,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
             override fun onPageFinished(view: WebView?, url: String?) {
                 b.progressHorizontal.hide()
                 b.progressScroll.max = b.web.getTotalContentHeight() - view!!.height
+                b.swipeRefresh.isRefreshing = false
 
             }
 
