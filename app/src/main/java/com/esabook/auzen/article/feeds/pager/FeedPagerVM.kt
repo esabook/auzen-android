@@ -15,7 +15,10 @@ import com.esabook.auzen.extentions.relativeLocalizeDate2DayIndo
 import com.esabook.auzen.extentions.toDate
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
 class FeedPagerVM : ViewModel() {
@@ -25,69 +28,70 @@ class FeedPagerVM : ViewModel() {
 
     val itemAdapter by lazy { FeedItemAdapter() }
 
-    private fun generateFeeds() = Pager(
-        config = PagingConfig(pageSize = 10, enablePlaceholders = true)
-    ) {
-        App.db.articleDao().getAll()
-    }.flow
-        .map { data ->
-            data.filter {
-                if (feedsFilterQuery.isBlank()
-                    && guidsWhiteList.isNullOrEmpty()
-                    && filters.isEmpty()
-                )
+    private suspend fun generateFeeds() = withContext(Dispatchers.IO) {
+        Pager(
+            config = PagingConfig(pageSize = 20, enablePlaceholders = false)
+        ) {
+            App.db.articleDao().getAll()
+        }.flow
+            .cancellable()
+            .map { data ->
+                data.filter {
+                    if (feedsFilterQuery.isBlank()
+                        && guidsWhiteList.isNullOrEmpty()
+                        && filters.isEmpty()
+                    )
+                        return@filter true
+
+                    val isTitleInQuery = isInFilterQuery(it)
+                    if (isTitleInQuery.not())
+                        return@filter false
+
+                    val isGuidInWhiteList = isInFilterGuid(it)
+                    if (isGuidInWhiteList.not())
+                        return@filter false
+
+                    val isMatchWithFilter = isInFilter(it)
+                    if (isMatchWithFilter.not())
+                        return@filter false
+
                     return@filter true
 
-                val isTitleInQuery = isInFilterQuery(it)
-                if (isTitleInQuery.not())
-                    return@filter false
+                }.map { article ->
+                    FeedListItem.Item(article)
 
-                val isGuidInWhiteList = isInFilterGuid(it)
-                if (isGuidInWhiteList.not())
-                    return@filter false
-
-                val isMatchWithFilter = isInFilter(it)
-                if (isMatchWithFilter.not())
-                    return@filter false
-
-                return@filter true
-
-            }.map { article ->
-                FeedListItem.Item(article)
-
-            }.insertSeparators { before: FeedListItem?, after: FeedListItem? ->
-                return@insertSeparators if (before == null && after == null) {
-                    // List is empty after fully loaded; return null to skip adding separator.
-                    null
-                } else if (after == null) {
-                    // Footer; return null here to skip adding a footer.
-                    null
-                } else if (before == null && after is FeedListItem.Item) {
-                    // Header
-                    val dateLabel = after.articleEntity.pubDate?.toDate()
-                        ?.relativeLocalizeDate2DayIndo()
-                    FeedListItem.Separator(dateLabel)
-                } else if (before is FeedListItem.Item
-                    && after is FeedListItem.Item
-                ) {
-                    val beforeDate = before.articleEntity.pubDate?.toDate()
-                        ?.relativeLocalizeDate2DayIndo()
-
-                    val afterDate = after.articleEntity.pubDate?.toDate()
-                        ?.relativeLocalizeDate2DayIndo()
-                    // Between two items that start with different letters.
-                    if (beforeDate != afterDate) {
-                        FeedListItem.Separator(afterDate)
-                    } else
+                }.insertSeparators { before: FeedListItem?, after: FeedListItem? ->
+                    return@insertSeparators if (before == null && after == null) {
+                        // List is empty after fully loaded; return null to skip adding separator.
                         null
-                } else {
-                    // Between two items that start with the same letter.
-                    null
-                }
-            }
-        }.cachedIn(viewModelScope)
+                    } else if (after == null) {
+                        // Footer; return null here to skip adding a footer.
+                        null
+                    } else if (before == null && after is FeedListItem.Item) {
+                        // Header
+                        val dateLabel = after.articleEntity.pubDate?.toDate()
+                            ?.relativeLocalizeDate2DayIndo()
+                        FeedListItem.Separator(dateLabel)
+                    } else if (before is FeedListItem.Item
+                        && after is FeedListItem.Item
+                    ) {
+                        val beforeDate = before.articleEntity.pubDate?.toDate()
+                            ?.relativeLocalizeDate2DayIndo()
 
-    val feeds: Flow<PagingData<FeedListItem>> = generateFeeds()
+                        val afterDate = after.articleEntity.pubDate?.toDate()
+                            ?.relativeLocalizeDate2DayIndo()
+                        // Between two items that start with different letters.
+                        if (beforeDate != afterDate) {
+                            FeedListItem.Separator(afterDate)
+                        } else
+                            null
+                    } else {
+                        // Between two items that start with the same letter.
+                        null
+                    }
+                }
+            }.cachedIn(viewModelScope)
+    }
 
     private var feedsFilterQuery: String = ""
 
@@ -117,10 +121,15 @@ class FeedPagerVM : ViewModel() {
         }
 
 
+    private var latestItemWatcherJob: Job? = null
     fun invalidateDataList() {
-        viewModelScope.launch(Dispatchers.IO) {
-            generateFeeds().take(1).collectLatest2 {
-                adapterSubmitList(it)
+        latestItemWatcherJob?.cancel()
+        latestItemWatcherJob = viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
+                delay(500)
+                generateFeeds().collectLatest2 {
+                    adapterSubmitList(it)
+                }
             }
         }
 
@@ -159,21 +168,23 @@ class FeedPagerVM : ViewModel() {
         return article.title?.contains(feedsFilterQuery, true) == true
     }
 
-    var filteringJob: Job? = null
-    fun adapterSubmitList(aes: PagingData<FeedListItem>, lifecycle: Lifecycle? = null) {
+    private var filteringJob: Job? = null
+    private fun adapterSubmitList(aes: PagingData<FeedListItem>, lifecycle: Lifecycle? = null) {
         filteringJob?.cancel()
         filteringJob = viewModelScope.launch {
-            try {
-                if (lifecycle == null)
-                    itemAdapter.submitData(aes)
-                else
-                    itemAdapter.submitData(lifecycle, aes)
+            withContext(Dispatchers.Main) {
+                delay(500)
+                try {
+                    if (lifecycle == null)
+                        itemAdapter.submitData(aes)
+                    else
+                        itemAdapter.submitData(lifecycle, aes)
 
-                Timber.v("==" + aes.hashCode())
-            } catch (e: Exception) {
-                Timber.e(e)
+                    Timber.v("==" + aes.hashCode())
+                } catch (e: Exception) {
+                    Timber.e(e)
+                }
             }
-
         }
     }
 
