@@ -37,8 +37,8 @@ val shortMonthNamesIndo = arrayOf(
     "Des"
 )
 val weekDaysINDLong =
-    arrayOf("Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
-val weekDaysINDShort = arrayOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min")
+    arrayOf("Sabtu", "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu")
+val weekDaysINDShort = arrayOf("Sab", "Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")
 
 private val sDateFormat = SimpleDateFormat(defaultDatePatterns[0], Locale.ENGLISH).apply {
     isLenient = false
