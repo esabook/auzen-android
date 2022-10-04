@@ -353,7 +353,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
     private fun shufflePlaylist() {
         App.db.launchIo {
 
-            val data = articleDao().loadAllWithUnread(true, 20, selectedRssSource.value)
+            val data = articleDao().loadAllWithUnread(true, 20, selectedRssSource.value ?: "")
             var job: Job? = null
             job = ioScope.launch {
                 data.collectLatest2 { list ->
