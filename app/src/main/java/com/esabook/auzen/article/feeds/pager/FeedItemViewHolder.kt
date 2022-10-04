@@ -80,9 +80,15 @@ class FeedItemViewHolder(parent: ViewGroup) :
                 val newData = data.copy(
                     description = data.description ?: ogArticle?.description,
                     enclosure = ogArticle?.image,
-                    sourceTitle = ogArticle?.siteName)
+                    sourceTitle = ogArticle?.siteName
+                )
 
-                App.db.articleDao().update(newData)
+                App.db.articleDao().updateShort(
+                    newData.guid,
+                    newData.description,
+                    newData.enclosure,
+                    newData.sourceTitle
+                )
 
                 if (newData.enclosure != null && newData.enclosure != data.enclosure)
                     setData(newData)

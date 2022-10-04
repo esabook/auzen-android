@@ -30,6 +30,9 @@ interface ArticleDao {
     @Update(entity = ArticleEntity::class, onConflict = IGNORE)
     fun update(vararg article: ArticleEntity)
 
+    @Query("UPDATE article SET description = :desc, enclosure = :enclosure, source_title = :sourceTitle WHERE guid = :guid ")
+    fun updateShort(guid: String, desc: String?, enclosure: String?, sourceTitle: String?)
+
     @Delete
     fun delete(article: ArticleEntity)
 
