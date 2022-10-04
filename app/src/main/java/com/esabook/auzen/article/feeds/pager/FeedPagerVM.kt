@@ -26,7 +26,7 @@ class FeedPagerVM : ViewModel() {
     val itemAdapter by lazy { FeedItemAdapter() }
 
     private fun generateFeeds() = Pager(
-        config = PagingConfig(pageSize = 10, enablePlaceholders = false)
+        config = PagingConfig(pageSize = 10, enablePlaceholders = true)
     ) {
         App.db.articleDao().getAll()
     }.flow
