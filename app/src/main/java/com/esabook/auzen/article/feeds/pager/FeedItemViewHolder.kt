@@ -9,6 +9,7 @@ import com.esabook.auzen.databinding.FeedViewHolderBinding
 import com.esabook.auzen.extentions.*
 import com.esabook.auzen.ui.ViewHolder
 import kotlinx.coroutines.*
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class FeedItemViewHolder(parent: ViewGroup) :
     ViewHolder<FeedViewHolderBinding>(parent, FeedViewHolderBinding::inflate) {
@@ -33,7 +34,7 @@ class FeedItemViewHolder(parent: ViewGroup) :
                     tvSource.alpha = alpha
                     tvPublishDate.alpha = alpha
 
-                    tvSource.text = data.sourceTitle
+                    tvSource.text = data.sourceTitle ?: data.sourceLink?.toHttpUrlOrNull()?.host
                     val title = data.title?.parseAsHtml()?.removeDebris()
                     tvTitle.text = title
                     var desc = data.description?.parseAsHtml()?.removeDebris()
