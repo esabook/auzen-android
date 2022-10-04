@@ -8,8 +8,6 @@ import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.extentions.NewsParserUtils
 import com.esabook.auzen.extentions.NewsParserUtils.toArticleEntity
 import com.esabook.auzen.extentions.collectLatest2
-import com.esabook.auzen.extentions.toDate
-import com.esabook.auzen.extentions.toStringWithPattern
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -121,11 +119,6 @@ class ReadVM : ViewModel() {
                 .replaceFirst(FONT_FIRST, selectedFont.name)
                 .replaceFirst(FONT_URL, selectedFont.fontLink)
                 .replaceFirst(TITLE, content.title ?: "")
-                .replace(COVER, articleEntity?.enclosure ?: "")
-                .replaceFirst(
-                    PUB_DATE,
-                    articleEntity?.pubDate?.toDate()?.toStringWithPattern(useIndo = true) ?: ""
-                )
                 .replaceFirst(CONTENT, newContent ?: "")
         }
     }
@@ -142,17 +135,21 @@ class ReadVM : ViewModel() {
 
         val fontFamilies: Array<Font> by lazy {
             arrayOf(
-                Font(""""Fira Sans", sans-serif""", """
+                Font(
+                    """"Fira Sans", sans-serif""", """
                     <link rel="preconnect" href="https://fonts.googleapis.com">
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans&display=swap" rel="stylesheet"> 
-                """.trimIndent()),
+                """.trimIndent()
+                ),
 
-                Font(""""Crimson Text", serif""", """
+                Font(
+                    """"Crimson Text", serif""", """
                     <link rel="preconnect" href="https://fonts.googleapis.com">
                     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap" rel="stylesheet"> 
-                """.trimIndent())
+                """.trimIndent()
+                )
             )
         }
 
@@ -208,10 +205,6 @@ class ReadVM : ViewModel() {
           </head>
           <body>
           <h2>$TITLE</h2>
-          <small></h2>$PUB_DATE</h2></small>
-          
-          <img src="$COVER" alt=""/>
-          <hr/>
           <br/>
           $CONTENT
           </body>
