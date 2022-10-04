@@ -1,14 +1,14 @@
 <resources>
     <string name="app_name">auzen</string>
     <string name="add_article_source">Tambah Sumber Berita</string>
-    <string name="rss_count_available_or_unread"><![CDATA[%1d/<b>%1d</b>]]></string>
+    <string name="rss_count_available_or_unread" formatted="false"><![CDATA[%1d/<b>%1d</b>]]></string>
     <string name="feeds_title_page">Semua</string>
     <string name="feeds_num_item_berita">%1d berita</string>
     <string name="open_external_browser">Buka di peramban</string>
     <string name="play_or_pause">Play/Pause</string>
     <string name="stop_reading">Stop reading</string>
     <string name="copy_link">Salin tautan</string>
-    <string name="share_link">Bagikan link</string>
+    <string name="share_link">Bagikan tautan</string>
     <string name="mark_as_read">Tandai telah dibaca</string>
     <string name="mark_as_unread">Tandai belum dibaca</string>
     <string name="reading_speech_control">Kontrol mulai baca</string>

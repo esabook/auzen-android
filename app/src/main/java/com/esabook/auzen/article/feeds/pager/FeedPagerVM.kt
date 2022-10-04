@@ -30,7 +30,7 @@ class FeedPagerVM : ViewModel() {
 
     private suspend fun generateFeeds() = withContext(Dispatchers.IO) {
         Pager(
-            config = PagingConfig(pageSize = 20, enablePlaceholders = false)
+            config = PagingConfig(pageSize = 20, enablePlaceholders = true)
         ) {
             App.db.articleDao().getAll()
         }.flow

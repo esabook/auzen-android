@@ -102,13 +102,13 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FeedListItem>() {
             override fun areItemsTheSame(oldItem: FeedListItem, newItem: FeedListItem): Boolean {
                 return if (oldItem is FeedListItem.Item && newItem is FeedListItem.Item) {
-                    isArticleSame(oldItem.articleEntity, newItem.articleEntity)
+                     oldItem.articleEntity.guid == newItem.articleEntity.guid
 
                 } else if (oldItem is FeedListItem.Separator && newItem is FeedListItem.Separator) {
                     oldItem.letter == newItem.letter
 
                 } else {
-                    oldItem == newItem
+                    false
                 }
             }
 
@@ -116,12 +116,14 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
                 oldItem: FeedListItem,
                 newItem: FeedListItem
             ): Boolean {
-                return oldItem == newItem
+                return if (oldItem is FeedListItem.Item && newItem is FeedListItem.Item)
+                    isArticleSame(oldItem.articleEntity, newItem.articleEntity)
+                else
+                    true
             }
 
             private fun isArticleSame(old: ArticleEntity, new: ArticleEntity): Boolean {
-                return old.guid == new.guid
-                        && old.isUnread == new.isUnread
+                return old.isUnread == new.isUnread
                         && old.isPlayListQueue == new.isPlayListQueue
                         && old.playListOrder == new.playListOrder
             }
