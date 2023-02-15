@@ -1,7 +1,7 @@
 package com.esabook.auzen.data.db.dao
 
 import androidx.room.*
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy.Companion.REPLACE
 import com.esabook.auzen.data.db.entity.RssEntity
 import kotlinx.coroutines.flow.Flow
 

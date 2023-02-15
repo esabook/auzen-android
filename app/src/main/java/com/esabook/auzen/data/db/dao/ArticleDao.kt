@@ -3,7 +3,7 @@ package com.esabook.auzen.data.db.dao
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
 import androidx.room.*
-import androidx.room.OnConflictStrategy.IGNORE
+import androidx.room.OnConflictStrategy.Companion.IGNORE
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import kotlinx.coroutines.flow.Flow
 
