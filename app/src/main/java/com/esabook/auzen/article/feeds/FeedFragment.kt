@@ -53,13 +53,14 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
             currentBackCount--
             if (currentBackCount > 0) {
-                Snackbar.make(view!!, "Sekali lagi untuk keluar", Snackbar.LENGTH_SHORT).also {
-                    it.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                            currentBackCount = backCountToExit
-                        }
-                    })
-                }.show()
+                Snackbar.make(binding.gContent, "Sekali lagi untuk keluar", Snackbar.LENGTH_SHORT)
+                    .also {
+                        it.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                                currentBackCount = backCountToExit
+                            }
+                        })
+                    }.show()
 
             } else {
                 requireActivity().finish()

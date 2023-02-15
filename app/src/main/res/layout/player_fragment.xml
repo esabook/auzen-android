@@ -71,7 +71,7 @@
             android:layout_above="@id/bottom_space"
             android:background="@color/black_10"
             android:elevation="@dimen/dp_12"
-            android:paddingTop="@dimen/dp_8"
+            android:paddingTop="@dimen/dp_24"
             android:translationZ="@dimen/dp_12">
 
             <com.google.android.material.slider.Slider
@@ -95,13 +95,12 @@
                 android:id="@+id/tv_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_12"
                 android:background="?selectableItemBackground"
                 android:ellipsize="end"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:maxLines="4"
                 android:paddingHorizontal="@dimen/dp_12"
-                android:paddingTop="@dimen/dp_8"
-                android:paddingBottom="@dimen/dp_12"
                 android:visibility="gone"
                 app:drawableRightCompat="@drawable/ic_round_unfold_more"
                 app:layout_constraintBottom_toTopOf="@id/slide_reader_speed"
