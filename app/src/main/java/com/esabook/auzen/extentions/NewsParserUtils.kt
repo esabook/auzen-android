@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.dankito.readability4j.Article
 import timber.log.Timber
+import java.nio.charset.Charset
 import java.util.*
 
 object NewsParserUtils {
@@ -20,6 +21,25 @@ object NewsParserUtils {
             var allPageLink = appendUrlForAllPage(link)
             var response = response(url = allPageLink)
             val redirectedLink = response.request.url.toString()
+
+            val isGoogleLink = response.headers("Report-To")
+                .firstOrNull {
+                    it.contains("google.com")
+                }
+                .isNullOrEmpty()
+                .not()
+
+            if (isGoogleLink) {
+                val peekBody = response.peekBody(Long.MAX_VALUE).byteString()
+                val startKey = peekBody.indexOf("data-n-au".toByteArray(), 0)
+                val endKey = peekBody.indexOf("\" ".toByteArray(), startKey)
+                val url = peekBody.substring(startKey, endKey)
+                    .string(Charset.defaultCharset())
+                    .removePrefix("data-n-au=\"")
+                if (url != redirectedLink || url != link) {
+                    return@withContext getArticle(url)
+                }
+            }
 
             if (link != redirectedLink) {
                 allPageLink = appendUrlForAllPage(redirectedLink)
