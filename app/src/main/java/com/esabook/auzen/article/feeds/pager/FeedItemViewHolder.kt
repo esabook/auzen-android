@@ -76,20 +76,18 @@ class FeedItemViewHolder(parent: ViewGroup) :
         thumbnailJob = mainScope.launch {
             withContext(Dispatchers.IO){
                 delay(500)
-                val ogArticle = OgParser.getOgEntity(data.link)
+                val realNews = NewsParserUtils.getArticle(data.link)
+                    ?: throw CancellationException("no realNews")
+
+                val ogArticle = OgParser.getOgEntity(realNews.uri)
                 val newData = data.copy(
+                    link = ogArticle?.url,
                     description = data.description ?: ogArticle?.description,
                     enclosure = ogArticle?.image,
                     sourceTitle = ogArticle?.siteName
                 )
 
-                App.db.articleDao().updateShort(
-                    newData.guid,
-                    newData.description,
-                    newData.enclosure,
-                    newData.sourceTitle
-                )
-
+                App.db.articleDao().update(newData)
                 if (newData.enclosure != null && newData.enclosure != data.enclosure)
                     setData(newData)
             }
