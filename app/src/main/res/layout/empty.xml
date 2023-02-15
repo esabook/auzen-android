@@ -13,7 +13,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:lottie_autoPlay="true"
-        app:lottie_loop="true"
+        app:lottie_loop="false"
         app:lottie_rawRes="@raw/empty_state" />
 
     <androidx.appcompat.widget.AppCompatTextView
