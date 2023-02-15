@@ -80,9 +80,12 @@ class MainActivity : AppCompatActivity(R.layout.splash) {
             openReadScreen(url!!.toString())
         } catch (e: Exception) {
             try {
-                val urlRegex = "/(https?://[^ ]*)/".toRegex()
-                val urlMatch = urlRegex.find(data)?.value
-                val url = urlMatch?.toHttpUrlOrNull()
+                val url = data
+                    .trim(' ')
+                    .split(" ")
+                    .firstOrNull {
+                        it.toHttpUrlOrNull() != null
+                    }
                 openReadScreen(url!!.toString())
             } catch (e1: Exception) {
                 Timber.e(e1)
