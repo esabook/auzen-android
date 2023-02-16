@@ -1,34 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iv_drag_handle"
-        android:layout_width="@dimen/dp_48"
-        android:layout_height="@dimen/dp_4"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/dp_12"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearance="@style/ShapeRounded"
-        app:srcCompat="@color/black_10" />
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/g_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_24"
-        android:orientation="vertical"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_drag_handle">
+        android:layout_height="wrap_content">
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@color/black_10" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_drag_handle"
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="@dimen/dp_4"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/dp_12"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearance="@style/ShapeRounded"
+            app:srcCompat="@color/black_10" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#A92E2E2E"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:padding="@dimen/dp_16"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/iv_thumbnail"
+            app:layout_constraintLeft_toLeftOf="@id/iv_thumbnail"
+            app:layout_constraintRight_toRightOf="@+id/iv_thumbnail"
+            tools:text="Tit\n\n\n\le" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/g_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_24"
+            android:orientation="vertical"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_thumbnail">
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

@@ -11,6 +11,7 @@ import com.esabook.auzen.R
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedOptionMenuBinding
 import com.esabook.auzen.databinding.FeedOptionMenuItemBinding
+import com.esabook.auzen.extentions.loadImageWithGlide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import timber.log.Timber
 
@@ -69,6 +70,12 @@ class FeedOptionMenu(context: Context) : BottomSheetDialog(context) {
         show()
     }
 
+    override fun show() {
+        super.show()
+        binding.tvTitle.text = payload?.title
+        binding.ivThumbnail.loadImageWithGlide(payload?.enclosure)
+    }
+
     fun setOnMenuClickListener(action: (holder: FeedItemViewHolder, pos: Int, payload: ArticleEntity, view: View) -> Unit) {
         onMenuClickListener = View.OnClickListener {
             action.invoke(holder!!, position!!, payload!!, it)
@@ -76,7 +83,8 @@ class FeedOptionMenu(context: Context) : BottomSheetDialog(context) {
         }
     }
 
-    fun getMenuBinding(@IdRes id: Int) = binding.gContent.findViewById<View>(id)?.let { FeedOptionMenuItemBinding.bind(it) }
+    fun getMenuBinding(@IdRes id: Int) =
+        binding.gContent.findViewById<View>(id)?.let { FeedOptionMenuItemBinding.bind(it) }
 
     fun onshow(action: FeedOptionMenu.()-> Unit){
         setOnShowListener {
