@@ -10,12 +10,12 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import com.esabook.auzen.R
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment.Companion.RESULT_KEY_EMPTY_STATE
 import com.esabook.auzen.article.player.PlayerFragment
+import com.esabook.auzen.article.player.PlayerView
 import com.esabook.auzen.article.readview.ReadFragment
 import com.esabook.auzen.article.subscription.RssCollectionFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
@@ -264,6 +264,20 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
             fragment.player.articleEntity?.let { it1 ->
                 gotoReadingScreen(it1)
                 fragment.dismissAllowingStateLoss()
+            }
+        }
+        fragment.lifecycleObserver = LifecycleEventObserver { _, event ->
+            when (event.targetState) {
+                Lifecycle.State.RESUMED -> {
+                    binding.playerFl.isGone = true
+                }
+                Lifecycle.State.DESTROYED -> {
+                    val fl = binding.playerFl.playerView
+                    if (fl?.playerState != PlayerView.PlayerState.STOPPED) {
+                        binding.playerFl.isVisible = true
+                    }
+                }
+                else -> {}
             }
         }
         fragment.show(parentFragmentManager, "")

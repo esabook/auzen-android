@@ -13,9 +13,11 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.core.view.forEach
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -412,6 +414,20 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
                 gotoReadingScreen(it1)
                 fragment.dismissAllowingStateLoss()
+            }
+        }
+        fragment.lifecycleObserver = LifecycleEventObserver { _, event ->
+            when (event.targetState) {
+                Lifecycle.State.RESUMED -> {
+                    binding.playerFl.isGone = true
+                }
+                Lifecycle.State.DESTROYED -> {
+                    val fl = binding.playerFl.playerView
+                    if (fl?.playerState != PlayerView.PlayerState.STOPPED) {
+                        binding.playerFl.isVisible = true
+                    }
+                }
+                else -> {}
             }
         }
         fragment.show(parentFragmentManager, "")

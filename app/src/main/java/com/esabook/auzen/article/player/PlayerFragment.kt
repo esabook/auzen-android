@@ -12,6 +12,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -52,6 +53,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
         binding = PlayerFragmentBinding.inflate(layoutInflater, container, false)
         player = PlayerView(binding!!.root)
         binding?.searchBar?.setOnQueryTextListener(model.onQuery)
+        lifecycleObserver?.let { lifecycle.addObserver(it) }
 
         return binding?.root
     }
@@ -369,6 +371,17 @@ class PlayerFragment : BottomSheetDialogFragment() {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleObserver?.let { lifecycle.removeObserver(it) }
+    }
+
+    var lifecycleObserver: LifecycleObserver? = null
+        set(value) {
+            if (field != null) throw RuntimeException("Don't fill twice")
+            field = value
+        }
 
     var onPlayerClickListener: View.OnClickListener? = null
         set(value) {
