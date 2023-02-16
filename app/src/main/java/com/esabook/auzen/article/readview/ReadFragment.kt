@@ -224,13 +224,21 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
             val readIcon = if (it) R.drawable.ic_read_uncheck
             else R.drawable.ic_read_check
             b.btMarkRead.setImageResource(readIcon)
+
+            val tooltipMsg = if (it) R.string.mark_as_unread
+            else R.string.mark_as_read
+            b.btMarkRead.tooltip(tooltipMsg)
         }
 
         model.isInPlaylist.observe(viewLifecycleOwner) {
             val playlistIcon = if (it) R.drawable.ic_baseline_bookmark_remove
             else R.drawable.ic_baseline_bookmark_add
             b.btAddToQueue.setImageResource(playlistIcon)
-            Timber.v(model.articleEntity.toString())
+
+
+            val tooltipMsg = if (it) R.string.remove_from_speech_queue
+            else R.string.add_to_speech_queue
+            b.btAddToQueue.tooltip(tooltipMsg)
         }
 
         val player = b.playerFl.playerView

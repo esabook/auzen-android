@@ -9,8 +9,8 @@
     <string name="stop_reading">Stop reading</string>
     <string name="copy_link">Salin tautan</string>
     <string name="share_link">Bagikan tautan</string>
-    <string name="mark_as_read">Tandai telah dibaca</string>
-    <string name="mark_as_unread">Tandai belum dibaca</string>
+    <string name="mark_as_read">Telah dibaca</string>
+    <string name="mark_as_unread">Belum dibaca</string>
     <string name="reading_speech_control">Kontrol mulai baca</string>
     <string name="add_to_speech_queue">Tambah sebagai antrian baca</string>
     <string name="remove_from_speech_queue">Hapus dari antrian baca</string>

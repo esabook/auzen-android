@@ -1,9 +1,12 @@
 package com.esabook.auzen.extentions
 
 import android.content.Context
+import android.os.Build
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.appcompat.widget.TooltipCompat
 import androidx.core.view.doOnDetach
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -11,7 +14,19 @@ import kotlin.coroutines.resume
 import kotlin.math.abs
 
 
-fun <T: View> T.post2(delay: Long = 0L, runnable: T.() -> Unit) {
+fun View.tooltip(@StringRes id: Int) {
+    tooltip(resources.getString(id))
+}
+
+fun View.tooltip(charSequence: CharSequence) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        tooltipText = charSequence
+    } else {
+        TooltipCompat.setTooltipText(this, charSequence)
+    }
+}
+
+fun <T : View> T.post2(delay: Long = 0L, runnable: T.() -> Unit) {
     if (delay == 0L) {
         post { runnable.invoke(this) }
     } else {
@@ -19,7 +34,11 @@ fun <T: View> T.post2(delay: Long = 0L, runnable: T.() -> Unit) {
     }
 }
 
-fun TextView.setTextAnimation(text: CharSequence?, duration: Long = 200, completion: (() -> Unit)? = null) {
+fun TextView.setTextAnimation(
+    text: CharSequence?,
+    duration: Long = 200,
+    completion: (() -> Unit)? = null
+) {
     fadOutAnimation(duration) {
         this.text = text
         fadInAnimation(duration) {
@@ -28,7 +47,11 @@ fun TextView.setTextAnimation(text: CharSequence?, duration: Long = 200, complet
     }
 }
 
-fun View.fadOutAnimation(duration: Long = 300, visibility: Int = View.INVISIBLE, completion: (() -> Unit)? = null) {
+fun View.fadOutAnimation(
+    duration: Long = 300,
+    visibility: Int = View.INVISIBLE,
+    completion: (() -> Unit)? = null
+) {
     animate()
         .alpha(0f)
         .setDuration(duration)
@@ -53,7 +76,7 @@ suspend fun View.awaitNextLayout() = suspendCancellableCoroutine { cont ->
     // This lambda is invoked immediately, allowing us to create
     // a callback/listener
 
-    val listener = object : View.OnLayoutChangeListener{
+    val listener = object : View.OnLayoutChangeListener {
         override fun onLayoutChange(
             v: View?,
             left: Int,
@@ -92,9 +115,9 @@ suspend fun View.awaitNextLayout() = suspendCancellableCoroutine { cont ->
 }
 
 suspend fun AppBarLayout.waitUntilExpanded() = suspendCancellableCoroutine { cont ->
-    val listener = object : AppBarLayout.OnOffsetChangedListener{
+    val listener = object : AppBarLayout.OnOffsetChangedListener {
         override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
-            if(abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
+            if (abs(verticalOffset) - appBarLayout.totalScrollRange == 0) {
                 // collapse
             } else {
                 // expanded
@@ -114,6 +137,7 @@ suspend fun AppBarLayout.waitUntilExpanded() = suspendCancellableCoroutine { con
 }
 
 fun View.showInputMethod() {
-    val imm: InputMethodManager? = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+    val imm: InputMethodManager? =
+        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
     imm?.showSoftInput(this, 0)
 }

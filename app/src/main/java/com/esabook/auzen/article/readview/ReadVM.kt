@@ -9,7 +9,6 @@ import com.esabook.auzen.extentions.NewsParserUtils
 import com.esabook.auzen.extentions.NewsParserUtils.toArticleEntity
 import com.esabook.auzen.extentions.collectLatest2
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.dankito.readability4j.Article
@@ -58,7 +57,7 @@ class ReadVM : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (isUseLocal && article.value?.uri != articleLink) {
-                    articleEntityRaw.take(1).collectLatest2(this@ReadVM::onCollectArticleEntityRaw)
+                    articleEntityRaw.collectLatest2(this@ReadVM::onCollectArticleEntityRaw)
                 }
 
                 val link = articleLink
@@ -94,7 +93,9 @@ class ReadVM : ViewModel() {
     fun markInPlaylist(asQueue: Boolean = true) {
         if (articleEntity?.isPlayListQueue == asQueue) return
         viewModelScope.launch(Dispatchers.IO) {
-            App.db.articleQueueDao().update(articleLink, asQueue)
+            articleEntity?.guid?.let {
+                App.db.articleQueueDao().update(it, asQueue)
+            }
         }
     }
 
