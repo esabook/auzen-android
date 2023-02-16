@@ -15,8 +15,8 @@ android {
         applicationId "com.esabook.auzen"
         minSdk 21
         targetSdk 33
-        versionCode 9
-        versionName "1.0.4"
+        versionCode 10
+        versionName "1.0.5"
 
         resConfigs "en", "id"
 
