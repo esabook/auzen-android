@@ -148,9 +148,12 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     private fun initView() = binding.let { b ->
 
         model.article.observe(viewLifecycleOwner) {
-//            if (it?.uri != b.web.url) {
-            renderArticle()
-//            }
+            if (it != null)
+                renderArticle()
+            else {
+                b.progressHorizontal.hide()
+                b.swipeRefresh.isRefreshing = false
+            }
 
             renderToolbar(model.articleEntity?.sourceLink)
         }

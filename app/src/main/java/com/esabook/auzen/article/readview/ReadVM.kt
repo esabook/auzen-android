@@ -64,12 +64,14 @@ class ReadVM : ViewModel() {
                 val link = articleLink
 
                 val article = NewsParserUtils.getArticle(link)
+
                 article?.uri?.also { articleLink = it }
 
                 if (articleEntity == null && article != null) {
                     val articleEntity = article.toArticleEntity()
                     App.db.articleDao().insertAll(articleEntity)
                 }
+
 
                 this@ReadVM.article.postValue(article)
 
