@@ -26,7 +26,7 @@ fun <T: ImageView> T.loadImageWithGlide(
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
-                    target: Target<Drawable>?,
+                    target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
                     onFail?.invoke(this@loadImageWithGlide)
@@ -34,10 +34,10 @@ fun <T: ImageView> T.loadImageWithGlide(
                 }
 
                 override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
+                    resource: Drawable,
+                    model: Any,
                     target: Target<Drawable>?,
-                    dataSource: DataSource?,
+                    dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
                     onSuccess?.invoke(this@loadImageWithGlide)

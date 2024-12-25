@@ -20,6 +20,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -75,15 +76,17 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launchWhenCreated {
-            withContext(Dispatchers.IO) {
-                model.articleLink = arguments?.getString(PAYLOAD_LINK) ?: ""
-                App.db.articleDao().markAsReadByGuidOrLink(model.articleLink, model.articleLink)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                withContext(Dispatchers.IO) {
+                    model.articleLink = arguments?.getString(PAYLOAD_LINK) ?: ""
+                    App.db.articleDao().markAsReadByGuidOrLink(model.articleLink, model.articleLink)
+                }
             }
         }
     }
 
-    var renderJob: Job? = null
+    private var renderJob: Job? = null
     private fun renderArticle() = binding.let { b ->
         b.web.stopLoading()
         b.progressHorizontal.show()

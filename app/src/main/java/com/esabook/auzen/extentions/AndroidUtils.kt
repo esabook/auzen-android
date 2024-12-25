@@ -23,7 +23,7 @@ fun Context.shareTextToExternal(text: CharSequence?){
     intent.putExtra(Intent.EXTRA_SUBJECT, text)
     intent.putExtra(Intent.EXTRA_TEXT, text)
     val chooser =  Intent.createChooser(intent, "Share")
-    ContextCompat.startActivity(this, chooser, null)
+    startActivity(chooser)
 }
 
 fun Context.openLinkInExternalBrowser(link: String?){

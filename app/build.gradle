@@ -1,7 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
+//    id 'kotlin-kapt'
 //    id 'kotlin-android'
 }
 
@@ -9,36 +10,34 @@ def gitCommitHash = "git rev-parse --verify --short HEAD".execute().text.trim()
 
 android {
 
-    compileSdk 33
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.esabook.auzen"
         minSdk 21
-        targetSdk 33
+        targetSdk 35
         versionCode 10
         versionName "1.0.5"
+        resourceConfigurations += ['en', 'id']
 
-        resConfigs "en", "id"
 
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/roomSchemas".toString())
-            }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/roomSchemas".toString())
         }
     }
 
-    splits {
-        density {
-            enable true // just enable them all
-        }
-        abi {
-            enable true
-            universalApk false
-        }
-    }
+//    splits {
+//        density {
+//            enable true // just enable them all
+//        }
+//        abi {
+//            enable true
+//            universalApk false
+//        }
+//    }
 
     signingConfigs {
         release {
@@ -83,86 +82,77 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion '1.3.0'
     }
-
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            output.outputFileName = "Auzen-${defaultConfig.versionName}-${gitCommitHash}.apk"
+    packagingOptions {
+        jniLibs {
+            excludes += ['META-INF/proguard/*']
+        }
+        resources {
+            excludes += ['META-INF/*.version', 'META-INF/proguard/*', '/*.properties', 'fabric/*.properties', 'META-INF/*.properties']
         }
     }
 
-    packagingOptions {
-        // Exclude AndroidX version files
-        exclude 'META-INF/*.version'
-        // Exclude consumer proguard files
-        exclude 'META-INF/proguard/*'
-        // Exclude the Firebase/Fabric/other random properties files
-        exclude '/*.properties'
-        exclude 'fabric/*.properties'
-        exclude 'META-INF/*.properties'
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
+            output.outputFileName = "Auzen-${variant.versionName}-${gitCommitHash}.apk"
+        }
     }
+
+    namespace 'com.esabook.auzen'
 }
 
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1'
 
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
 
-    implementation "androidx.fragment:fragment-ktx:1.5.5"
+    implementation "androidx.fragment:fragment-ktx:1.8.5"
 
-//    implementation 'androidx.activity:activity-compose:1.5.1'
-//    implementation 'androidx.compose.material:material:1.2.1'
-//    implementation 'androidx.compose.animation:animation:1.2.1'
-//    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
-//
-//    implementation "androidx.compose.ui:ui-tooling-preview:1.2.1"
-//    debugImplementation "androidx.compose.ui:ui-tooling:1.2.1"
-
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation "androidx.paging:paging-runtime-ktx:3.1.1"
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation "androidx.paging:paging-runtime-ktx:3.3.5"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
 
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.12.0'
 
     implementation 'net.dankito.readability4j:readability4j:1.0.8'
-    implementation 'com.airbnb.android:lottie:5.2.0'
+    implementation 'com.airbnb.android:lottie:6.6.2'
 
 
-    implementation(platform('com.squareup.okhttp3:okhttp-bom:5.0.0-alpha.10'))
-    implementation "com.squareup.okhttp3:okhttp-coroutines-jvm:5.0.0-alpha.10"
+    implementation(platform('com.squareup.okhttp3:okhttp-bom:4.12.0'))
+    implementation 'com.squareup.okhttp3:okhttp-coroutines-jvm:5.0.0-alpha.12'
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:logging-interceptor")
 
-    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'org.jsoup:jsoup:1.18.3'
 
 
-    def room_version = "2.5.0"
+    def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-paging:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
 
-    implementation 'com.rometools:rome:1.18.0'
+    implementation 'com.rometools:rome:2.1.0'
 
-    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
-    implementation 'com.squareup.leakcanary:plumber-android:2.9.1'
+    implementation 'com.squareup.leakcanary:plumber-android:2.14'
 
-    implementation 'io.sentry:sentry-android:6.4.1'
+    implementation 'io.sentry:sentry-android:7.19.1'
 
 
     // debug tool
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
 
     // test
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }

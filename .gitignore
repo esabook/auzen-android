@@ -53,3 +53,8 @@ bin/
 app/release
 app/debug
 /.idea/git_toolbox_prj.xml
+/.idea/appInsightsSettings.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/git_toolbox_blame.xml
+/.idea/kotlinc.xml
+/.idea/other.xml
