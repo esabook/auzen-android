@@ -6,19 +6,28 @@ import androidx.core.util.keyIterator
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.esabook.auzen.App
 import com.esabook.auzen.article.feeds.FeedFilter
 import com.esabook.auzen.data.db.entity.ArticleEntity
+import com.esabook.auzen.extentions.Debouncer
 import com.esabook.auzen.extentions.collectLatest2
 import com.esabook.auzen.extentions.relativeLocalizeDate2DayIndo
 import com.esabook.auzen.extentions.toDate
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class FeedPagerVM : ViewModel() {
@@ -95,17 +104,13 @@ class FeedPagerVM : ViewModel() {
 
     private var feedsFilterQuery: String = ""
 
-    val searchQueryAction = Channel<String>().also {
-        viewModelScope.launch(Dispatchers.IO) {
-            it.consumeAsFlow().debounce(500).collectLatest2 { s ->
-                if (s == feedsFilterQuery)
-                    return@collectLatest2
+    val searchQueryAction = Debouncer(viewModelScope).create<String>(500) { s ->
+        if (s == feedsFilterQuery)
+            return@create
 
-                withContext(Dispatchers.IO) {
-                    feedsFilterQuery = s
-                    invalidateDataList()
-                }
-            }
+        withContext(Dispatchers.Default) {
+            feedsFilterQuery = s
+            invalidateDataList()
         }
     }
 
@@ -145,9 +150,9 @@ class FeedPagerVM : ViewModel() {
                 return true
 
             isInFilter = when (key) {
-                FeedFilter.PLAYLIST.ordinal -> isInFilter || article.isPlayListQueue
-                FeedFilter.READ.ordinal -> isInFilter || article.isUnread.not()
-                FeedFilter.UNREAD.ordinal -> isInFilter || article.isUnread
+                FeedFilter.PLAYLIST.ordinal -> article.isPlayListQueue
+                FeedFilter.READ.ordinal -> article.isUnread.not()
+                FeedFilter.UNREAD.ordinal -> article.isUnread
                 else -> false
             }
         }

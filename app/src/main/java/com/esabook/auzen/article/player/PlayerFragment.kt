@@ -20,10 +20,13 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.esabook.auzen.App
 import com.esabook.auzen.R
-import com.esabook.auzen.article.player.PlayerView.PlayerState.*
+import com.esabook.auzen.article.player.PlayerView.PlayerState.LOADING
+import com.esabook.auzen.article.player.PlayerView.PlayerState.PLAYING
+import com.esabook.auzen.article.player.PlayerView.PlayerState.STOPPED
 import com.esabook.auzen.audio.tts.TTSManager
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.PlayerFragmentBinding
+import com.esabook.auzen.extentions.Debouncer
 import com.esabook.auzen.extentions.collectLatest2
 import com.esabook.auzen.extentions.getClr
 import com.esabook.auzen.extentions.getDrw
@@ -32,11 +35,13 @@ import com.esabook.auzen.ui.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.*
+import java.util.Collections
 
 class PlayerFragment : BottomSheetDialogFragment() {
     private var binding: PlayerFragmentBinding? = null
@@ -102,13 +107,12 @@ class PlayerFragment : BottomSheetDialogFragment() {
             it.viewTreeObserver.addOnGlobalLayoutListener(treeObserver)
         }
 
-        val changeSpeedFlow = MutableStateFlow(TTSManager.currentSpeed)
-        lifecycleScope.launch(Dispatchers.IO) {
-            changeSpeedFlow.debounce(500).collectLatest2 { value ->
-                if (TTSManager.currentSpeed == value)
-                    return@collectLatest2
+        val changeSpeedFlow = Debouncer(lifecycleScope).create<Float>(500) { v ->
+            withContext(Dispatchers.Default) {
+                if (TTSManager.currentSpeed == v)
+                    return@withContext
 
-                TTSManager.currentSpeed = value
+                TTSManager.currentSpeed = v
                 if (player.playerState == PLAYING) {
                     player.speakPause()
                     player.speakPlay()
@@ -116,14 +120,13 @@ class PlayerFragment : BottomSheetDialogFragment() {
             }
         }
 
-
         binding?.slideReaderSpeed?.value = TTSManager.currentSpeed
         "${TTSManager.currentSpeed}x".also { binding?.tvSpeechSpeedRate?.text = it }
 
 
         binding?.slideReaderSpeed?.post2 {
             addOnChangeListener { _, value, _ ->
-                changeSpeedFlow.tryEmit(value)
+                changeSpeedFlow.invoke(value)
                 "${value}x".also { binding?.tvSpeechSpeedRate?.text = it }
             }
         }
@@ -218,6 +221,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
                 val ttsIntent = Intent("com.android.settings.TTS_SETTINGS")
                 startActivity(ttsIntent)
             } catch (e: Exception) {
+                // Empty
             }
         }
 

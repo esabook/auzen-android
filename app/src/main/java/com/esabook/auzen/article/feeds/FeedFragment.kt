@@ -10,7 +10,10 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.R
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment
 import com.esabook.auzen.article.feeds.pager.FeedPagerFragment.Companion.RESULT_KEY_EMPTY_STATE
@@ -46,7 +49,7 @@ class FeedFragment : Fragment(R.layout.feed_fragment) {
 
             if (isHidden || view == null) {
                 isEnabled = false
-                requireActivity().onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
                 isEnabled = true
                 return
             }

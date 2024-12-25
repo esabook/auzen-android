@@ -17,7 +17,7 @@ class PlayerToolbar @JvmOverloads constructor(
         addView(playerView.getView())
     }
 
-    private fun playerStateObserver(s: PlayerView.PlayerState) {
+    private fun playerStateObserver(state: PlayerView.PlayerState) {
         updatePlayerPaddingRight()
     }
 

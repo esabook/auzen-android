@@ -22,16 +22,27 @@ import com.esabook.auzen.article.player.PlayerView
 import com.esabook.auzen.article.readview.ReadFragment
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedPagerFragmentBinding
-import com.esabook.auzen.extentions.*
+import com.esabook.auzen.extentions.NewsParserUtils
 import com.esabook.auzen.extentions.NewsParserUtils.toSpeakable
+import com.esabook.auzen.extentions.collectLatest2
+import com.esabook.auzen.extentions.copyToClipboard
+import com.esabook.auzen.extentions.doSync
+import com.esabook.auzen.extentions.openLinkInExternalBrowser
+import com.esabook.auzen.extentions.post2
+import com.esabook.auzen.extentions.shareTextToExternal
 import com.esabook.auzen.local.KeyConstant
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
 import com.esabook.auzen.ui.OnItemClickListener
 import com.esabook.auzen.ui.ProgressDialog
 import com.esabook.auzen.ui.StickHeaderItemDecoration
 import com.esabook.auzen.ui.viewBinding
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
@@ -106,7 +117,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     override fun onResume() {
         queryFlow?.value?.let {
-            model.searchQueryAction.trySend(it)
+            model.searchQueryAction.invoke(it)
         }
         queryFlow?.asLiveData()?.observe(viewLifecycleOwner, this::onQueryObserver)
         super.onResume()
@@ -136,7 +147,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
     }
 
     private fun onQueryObserver(q: String?) {
-        model.searchQueryAction.trySend(q ?: "")
+        model.searchQueryAction.invoke(q ?: "")
     }
 
     private suspend fun initAction() {

@@ -17,7 +17,9 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -27,8 +29,14 @@ import com.esabook.auzen.article.player.PlayerFragment
 import com.esabook.auzen.article.player.PlayerView
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.ReadFragmentBinding
-import com.esabook.auzen.extentions.*
+import com.esabook.auzen.extentions.NewsParserUtils
 import com.esabook.auzen.extentions.NewsParserUtils.toSpeakable
+import com.esabook.auzen.extentions.copyToClipboard
+import com.esabook.auzen.extentions.getDrw
+import com.esabook.auzen.extentions.openLinkInExternalBrowser
+import com.esabook.auzen.extentions.shareTextToExternal
+import com.esabook.auzen.extentions.toast
+import com.esabook.auzen.extentions.tooltip
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
 import com.esabook.auzen.ui.ProgressDialog
 import com.esabook.auzen.ui.viewBinding
@@ -295,7 +303,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         }
 
         b.toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
 
