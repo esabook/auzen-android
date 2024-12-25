@@ -4,7 +4,9 @@ import android.content.Context
 import android.speech.tts.UtteranceProgressListener
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.*
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
@@ -26,7 +28,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.Deque
+import java.util.LinkedList
 
 class PlayerView(viewGroup: ViewGroup) {
 
@@ -115,15 +118,18 @@ class PlayerView(viewGroup: ViewGroup) {
                 // start marquee
                 tvTitle.isSelected = true
 
-                root.doOnAttach {
-                    progressPercent.observeForever(this@PlayerView::invalidateProgress)
-                    playerStateLiveData.observeForever(this@PlayerView::invalidateObserver)
-                }
+                root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(p0: View) {
+                        progressPercent.observeForever(this@PlayerView::invalidateProgress)
+                        playerStateLiveData.observeForever(this@PlayerView::invalidateObserver)
+                    }
 
-                root.doOnDetach {
-                    progressPercent.removeObserver(this@PlayerView::invalidateProgress)
-                    playerStateLiveData.removeObserver(this@PlayerView::invalidateObserver)
-                }
+                    override fun onViewDetachedFromWindow(p0: View) {
+                        progressPercent.removeObserver(this@PlayerView::invalidateProgress)
+                        playerStateLiveData.removeObserver(this@PlayerView::invalidateObserver)
+                    }
+
+                })
             }
 
         }
