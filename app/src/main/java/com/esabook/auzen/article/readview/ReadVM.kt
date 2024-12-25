@@ -67,8 +67,9 @@ class ReadVM : ViewModel() {
                 article?.uri?.also { articleLink = it }
 
                 if (articleEntity == null && article != null) {
-                    val articleEntity = article.toArticleEntity()
-                    App.db.articleDao().insertAll(articleEntity)
+                    val newArticleEntity = article.toArticleEntity()
+                    articleEntity = newArticleEntity
+                    App.db.articleDao().insertAll(newArticleEntity)
                 }
 
 

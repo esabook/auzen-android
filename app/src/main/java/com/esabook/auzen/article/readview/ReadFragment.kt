@@ -290,7 +290,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
                     PlayerView.PlayerState.STOPPED -> {
                         var job: Job? = null
                         progressDialog.onShow {
-                            job = lifecycleScope.launch(Dispatchers.IO) {
+                            job = lifecycleScope.launch {
                                 withContext(Dispatchers.Default) {
                                     val text = model.article.value?.toSpeakable() ?: listOf()
                                     player.setWords(model.articleEntity, text)
@@ -338,7 +338,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         (b.toolbar.menu as? MenuBuilder)?.setOptionalIconsVisible(true)
 
         b.toolbar.setOnMenuItemClickListener {
-            val url = model.articleEntity?.link ?: return@setOnMenuItemClickListener false
+            val url = model.articleEntity?.link ?: model.articleLink
 
             when (it.itemId) {
                 R.id.sc_reader_theme -> {
