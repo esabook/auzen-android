@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -155,7 +156,7 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         }
     }
 
-    @SuppressLint("RestrictedApi")
+    @SuppressLint("RestrictedApi", "ClickableViewAccessibility")
     private fun initView() = binding.let { b ->
 
         model.article.observe(viewLifecycleOwner) {
@@ -191,7 +192,28 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         b.web.settings.domStorageEnabled = true
         b.web.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
+        var isEnableToolbarHider = true
+
+        b.web.setOnTouchListener { view, motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_UP) {
+                isEnableToolbarHider = true
+            }
+            false
+        }
+
         b.web.addOnScrollChanged { _, y, _, oldY ->
+            if (isEnableToolbarHider) {
+                isEnableToolbarHider = false
+                if (b.toolbar.isGone && oldY > y) {
+                    b.toolbar.isVisible = true
+                    b.gButton.isVisible = true
+
+                } else if (b.toolbar.isVisible && oldY < y) {
+                    b.toolbar.isGone = true
+                    b.gButton.isGone = true
+                }
+            }
+
             b.progressScroll.apply {
                 if (max == 0) {
                     max = b.web.getTotalContentHeight() - b.web.height
@@ -283,12 +305,15 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
 
                     }
+
                     PlayerView.PlayerState.PAUSED -> {
                         player.speakPlay()
                     }
+
                     PlayerView.PlayerState.PLAYING -> {
                         player.speakPause()
                     }
+
                     PlayerView.PlayerState.LOADING -> {
                         //
                     }
@@ -329,15 +354,19 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
                     }
 
                 }
+
                 R.id.sc_readibility_mode -> {
                     model.readibilityModeOn.apply { postValue(value?.not() ?: true) }
                 }
+
                 R.id.sc_open_browser -> {
                     context?.openLinkInExternalBrowser(url)
                 }
+
                 R.id.sc_copy_link -> {
                     context?.copyToClipboard(url)
                 }
+
                 R.id.sc_share_link_external -> {
                     context?.shareTextToExternal(url)
                 }
@@ -443,12 +472,14 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
                 Lifecycle.State.RESUMED -> {
                     binding.playerFl.isGone = true
                 }
+
                 Lifecycle.State.DESTROYED -> {
                     val fl = binding.playerFl.playerView
                     if (fl?.playerState != PlayerView.PlayerState.STOPPED) {
                         binding.playerFl.isVisible = true
                     }
                 }
+
                 else -> {}
             }
         }

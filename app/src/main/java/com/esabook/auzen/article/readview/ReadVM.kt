@@ -16,7 +16,7 @@ import timber.log.Timber
 
 class ReadVM : ViewModel() {
 
-    var readibilityModeOn = MutableLiveData<Boolean>(true)
+    var readibilityModeOn = MutableLiveData(false)
     var articleLink: String = ""
     val isUnread = MutableLiveData<Boolean>()
     val isInPlaylist = MutableLiveData<Boolean>()
