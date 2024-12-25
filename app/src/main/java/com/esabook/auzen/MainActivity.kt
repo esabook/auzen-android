@@ -1,8 +1,11 @@
 package com.esabook.auzen
 
 import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.article.feeds.FeedFragment
@@ -20,6 +23,12 @@ class MainActivity : AppCompatActivity(R.layout.splash) {
 
     var isShouldSkipSplash = false
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.black_80)
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.black_80)
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onResume() {
         super.onResume()
         if (isShouldSkipSplash.not()) {
@@ -36,6 +45,9 @@ class MainActivity : AppCompatActivity(R.layout.splash) {
                             isShouldSkipSplash = true
                             setContentView(R.layout.activity_main)
                             openFeedScreen()
+
+                            window.statusBarColor = Color.WHITE
+                            window.navigationBarColor = Color.WHITE
                         }?.start()
                 }
             }
