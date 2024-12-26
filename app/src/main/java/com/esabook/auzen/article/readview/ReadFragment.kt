@@ -179,6 +179,12 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
                         it.icon = resources.getDrw(R.drawable.ic_baseline_book_off)
                     }
                 }
+
+                if (it.itemId == R.id.sc_reader_theme) {
+                    it.isVisible = bool
+                }
+
+
             }
             renderArticle()
         }
