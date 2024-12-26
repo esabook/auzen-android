@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(R.layout.splash) {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         resolveReceivedIntent(intent)
     }

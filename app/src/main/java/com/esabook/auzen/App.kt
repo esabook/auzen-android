@@ -19,11 +19,13 @@ import timber.log.Timber
 class App : Application() {
     companion object {
         lateinit var db: AppDatabase
+        lateinit var app: Application
     }
 
     override fun onCreate() {
         super.onCreate()
 
+        app = this
         MainScope().launch(Dispatchers.IO) {
             db = Room.databaseBuilder(
                 this@App,

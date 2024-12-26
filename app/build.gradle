@@ -129,6 +129,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor")
 
     implementation 'org.jsoup:jsoup:1.18.3'
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+    debugImplementation "com.github.chuckerteam.chucker:library:4.1.0"
 
 
     def room_version = "2.6.1"

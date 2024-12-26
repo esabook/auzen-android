@@ -5,41 +5,72 @@ import androidx.core.text.parseAsHtml
 import com.esabook.auzen.data.api.Api.response
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.parser.AuzenArticleParser
+import com.esabook.auzen.parser.GoogleNewsArticleDecoder
 import com.esabook.auzen.parser.ParserConfig
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.dankito.readability4j.Article
 import timber.log.Timber
 import java.nio.charset.Charset
-import java.util.*
+import java.util.Date
+import java.util.UUID
 
 object NewsParserUtils {
 
-    @Suppress("BlockingMethodInNonBlockingContext")
+    private fun String?.isGoogleUrl(): Boolean {
+        return this?.contains(".google.") == true
+    }
+
     suspend fun getArticle(link: String): Article? = withContext(Dispatchers.IO) {
         try {
+            val id = link.length
             var allPageLink = appendUrlForAllPage(link)
             var response = response(url = allPageLink)
             val redirectedLink = response.request.url.toString()
 
-            val isGoogleLink = redirectedLink.contains(".google.")
 
-            if (isGoogleLink) {
+            if (redirectedLink.isGoogleUrl()) {
                 val peekBody = response.peekBody(Long.MAX_VALUE).byteString()
                 val startKey = peekBody.indexOf("data-n-au".toByteArray(), 0)
-                val endKey = peekBody.indexOf("\" ".toByteArray(), startKey)
-                val url = peekBody.substring(startKey, endKey)
-                    .string(Charset.defaultCharset())
-                    .removePrefix("data-n-au=\"")
-                if (url.isNotBlank() && (url != redirectedLink || url != link)) {
-                    return@withContext getArticle(url)
+
+                if (startKey > 0) {
+                    Timber.d("start parsing with data-n-au")
+
+                    val endKey = peekBody.indexOf("\" ".toByteArray(), startKey)
+                    val url = peekBody.substring(startKey, endKey)
+                        .string(Charset.defaultCharset())
+                        .removePrefix("data-n-au=\"")
+                    if (url.isNotBlank() && (url != redirectedLink || url != link)) {
+                        Timber.d("%s url: %s", id, url)
+                        return@withContext getArticle(url)
+                    }
+
+                } else {
+                    Timber.d("start parsing with GoogleNewsArticleDecoder url: %s", link)
+                    val newsDecoded = GoogleNewsArticleDecoder.decodeGoogleNewsUrl(link)
+                    if (newsDecoded["status"] == true) {
+                        val url = newsDecoded["decoded_url"] as String
+
+                        if (url.isNotBlank() && (url != redirectedLink || url != link)) {
+                            Timber.d("%s url: %s", id, url)
+                            return@withContext getArticle(url)
+                        }
+                    } else {
+                        Timber.e(Gson().toJson(newsDecoded))
+                    }
                 }
+
             }
 
             if (link != redirectedLink) {
                 allPageLink = appendUrlForAllPage(redirectedLink)
                 response = response(url = allPageLink)
             }
+
+            Timber.d("%s url: %s", id, redirectedLink)
+            if (redirectedLink.isGoogleUrl())
+                return@withContext null
 
             val content = response.body.string()
             getArticle(redirectedLink, content)
@@ -66,8 +97,8 @@ object NewsParserUtils {
         return ret.toString()
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun getArticle(link: String, dom: String): Article? = withContext(Dispatchers.IO) {
+    private suspend fun getArticle(link: String, dom: String): Article? =
+        withContext(Dispatchers.IO) {
         try {
             AuzenArticleParser(link, dom).parse()
         } catch (e: Exception) {
