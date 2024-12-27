@@ -12,49 +12,53 @@ import com.esabook.auzen.article.feeds.FeedFragment
 import com.esabook.auzen.article.readview.ReadFragment
 import com.esabook.auzen.extentions.toast
 import com.esabook.auzen.ui.Navigation.Companion.findNavigation
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity(R.layout.splash) {
+class MainActivity : AppCompatActivity() {
 
-    var isShouldSkipSplash = false
+    private var isShouldSkipSplash = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.statusBarColor = ContextCompat.getColor(this, R.color.black_80)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.black_80)
         super.onCreate(savedInstanceState)
+
+        isShouldSkipSplash = intent.getUrl() != null
+
+        if (isShouldSkipSplash) {
+            setContentView(R.layout.activity_main)
+            openFeedScreen()
+        } else {
+            setContentView(R.layout.splash)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (isShouldSkipSplash.not()) {
+        if (!isShouldSkipSplash) {
             lifecycleScope.launch {
-                withContext(Dispatchers.Main) {
-                    delay(2000)
-                    findViewById<View?>(R.id.iv_logo)
-                        ?.animate()
-                        ?.setDuration(700)
-                        ?.alpha(0f)
-                        ?.withEndAction {
-                            // After the fade out, remove the
-                            // splash and set content view
-                            isShouldSkipSplash = true
-                            setContentView(R.layout.activity_main)
-                            openFeedScreen()
-
-                            window.statusBarColor = Color.WHITE
-                            window.navigationBarColor = Color.WHITE
-                        }?.start()
-                }
+                delay(2000)
+                findViewById<View?>(R.id.iv_logo)
+                    ?.animate()
+                    ?.setDuration(700)
+                    ?.alpha(0f)
+                    ?.withEndAction {
+                        // After the fade out, remove the
+                        // splash and set content view
+                        isShouldSkipSplash = true
+                        setContentView(R.layout.activity_main)
+                        openFeedScreen()
+                    }?.start()
             }
         }
     }
 
     private fun openFeedScreen() {
+        window.statusBarColor = Color.WHITE
+        window.navigationBarColor = Color.WHITE
         findNavigation().submit {
             fragmentManager.beginTransaction()
                 .replace(containerId, FeedFragment::class.java, null)
@@ -80,31 +84,37 @@ class MainActivity : AppCompatActivity(R.layout.splash) {
     }
 
     private fun resolveReceivedIntent(intent: Intent?) {
-        if (intent == null) return
-        val data = intent.data?.toString()
-            ?: intent.dataString
-            ?: intent.getStringExtra(Intent.EXTRA_TEXT)
-            ?: intent.clipData?.getItemAt(0)?.text?.toString()
-            ?: return
 
+        var url: String = intent.getUrl() ?: return
         try {
-            val url = data.toHttpUrlOrNull()
-            openReadScreen(url!!.toString())
+            openReadScreen(url)
         } catch (e: Exception) {
             try {
-                val url = data
+                url = url
                     .trim(' ')
                     .split(" ")
                     .firstOrNull {
                         it.toHttpUrlOrNull() != null
-                    }
-                openReadScreen(url!!.toString())
+                    } ?: return
+                openReadScreen(url)
             } catch (e1: Exception) {
                 Timber.e(e1)
                 toast(getString(R.string.unsupported_received_link))
 
             }
         }
+    }
+
+    private fun Intent?.getUrl(): String? {
+        if (this == null) return null
+
+        val data = this.data?.toString()
+            ?: this.dataString
+            ?: this.getStringExtra(Intent.EXTRA_TEXT)
+            ?: this.clipData?.getItemAt(0)?.text?.toString()
+            ?: return null
+
+        return data.toHttpUrlOrNull()?.toString()
     }
 
 }
