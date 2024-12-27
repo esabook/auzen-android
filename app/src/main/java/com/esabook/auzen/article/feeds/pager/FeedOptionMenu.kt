@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.text.parseAsHtml
 import androidx.core.view.forEach
 import androidx.fragment.app.FragmentManager
 import com.esabook.auzen.R
@@ -85,7 +86,7 @@ class FeedOptionMenu : BottomSheetDialogFragment() {
         onShowAction?.invoke(this)
 
         binding?.run {
-            tvTitle.text = payload?.title
+            tvTitle.text = payload?.title?.parseAsHtml()
             ivThumbnail.loadImageWithGlide(payload?.enclosure)
         }
     }
