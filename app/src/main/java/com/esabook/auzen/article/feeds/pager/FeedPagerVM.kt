@@ -53,18 +53,15 @@ class FeedPagerVM : ViewModel() {
                         return@filter true
 
                     val isTitleInQuery = isInFilterQuery(it)
-                    if (isTitleInQuery.not())
+                    if (!isTitleInQuery)
                         return@filter false
 
                     val isGuidInWhiteList = isInFilterGuid(it)
-                    if (isGuidInWhiteList.not())
+                    if (!isGuidInWhiteList)
                         return@filter false
 
                     val isMatchWithFilter = isInFilter(it)
-                    if (isMatchWithFilter.not())
-                        return@filter false
-
-                    return@filter true
+                    return@filter isMatchWithFilter
 
                 }.map { article ->
                     FeedListItem.Item(article)
@@ -130,11 +127,9 @@ class FeedPagerVM : ViewModel() {
     fun invalidateDataList() {
         latestItemWatcherJob?.cancel()
         latestItemWatcherJob = viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.IO) {
-                delay(500)
-                generateFeeds().collectLatest2 {
-                    adapterSubmitList(it)
-                }
+            delay(500)
+            generateFeeds().collectLatest2 {
+                adapterSubmitList(it)
             }
         }
 
@@ -177,18 +172,16 @@ class FeedPagerVM : ViewModel() {
     private fun adapterSubmitList(aes: PagingData<FeedListItem>, lifecycle: Lifecycle? = null) {
         filteringJob?.cancel()
         filteringJob = viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                delay(500)
-                try {
-                    if (lifecycle == null)
-                        itemAdapter.submitData(aes)
-                    else
-                        itemAdapter.submitData(lifecycle, aes)
+            delay(500)
+            try {
+                if (lifecycle == null)
+                    itemAdapter.submitData(aes)
+                else
+                    itemAdapter.submitData(lifecycle, aes)
 
-                    Timber.v("==" + aes.hashCode())
-                } catch (e: Exception) {
-                    Timber.e(e)
-                }
+                Timber.v("==" + aes.hashCode())
+            } catch (e: Exception) {
+                Timber.e(e)
             }
         }
     }

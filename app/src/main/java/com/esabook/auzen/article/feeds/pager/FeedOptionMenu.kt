@@ -1,57 +1,65 @@
 package com.esabook.auzen.article.feeds.pager
 
-import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.IdRes
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.forEach
+import androidx.fragment.app.FragmentManager
 import com.esabook.auzen.R
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedOptionMenuBinding
 import com.esabook.auzen.databinding.FeedOptionMenuItemBinding
 import com.esabook.auzen.extentions.loadImageWithGlide
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import timber.log.Timber
 
-class FeedOptionMenu(context: Context) : BottomSheetDialog(context) {
+class FeedOptionMenu : BottomSheetDialogFragment() {
 
     private val menuId = R.menu.feed_item_menu
-    private val binding = FeedOptionMenuBinding.inflate(LayoutInflater.from(context))
+    private var binding: FeedOptionMenuBinding? = null
 
     private var onMenuClickListener: View.OnClickListener? = null
 
-    var holder: FeedItemViewHolder? = null
-    var position: Int? = null
+    private var holder: FeedItemViewHolder? = null
+    private var position: Int? = null
+    private var onShowAction: (FeedOptionMenu.() -> Unit)? = null
+
     var payload: ArticleEntity? = null
 
-    init {
-        binding.gContent.removeAllViews()
-        initView()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FeedOptionMenuBinding.inflate(LayoutInflater.from(context), container, false)
+        return binding!!.root
     }
 
-    private fun initView() {
-        if (binding.gContent.childCount > 0) {
-            Timber.w("Skip reinflate")
-            return
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding?.run {
+            if (gContent.childCount > 0) {
+                Timber.w("Skip reinflate")
+                return
+            }
+
+            val popupMenu = PopupMenu(requireContext(), FrameLayout(requireContext()))
+            popupMenu.menuInflater.inflate(menuId, popupMenu.menu)
+
+            popupMenu.menu.forEach {
+                val itemView = FeedOptionMenuItemBinding
+                    .inflate(LayoutInflater.from(context), gContent, false)
+                itemView.icon.setImageDrawable(it.icon)
+                itemView.title.text = it.title
+                itemView.root.id = it.itemId
+                itemView.root.setOnClickListener(this@FeedOptionMenu::onViewClick)
+                gContent.addView(itemView.root)
+            }
         }
 
-        val popupMenu = PopupMenu(context, FrameLayout(context))
-        popupMenu.menuInflater.inflate(menuId, popupMenu.menu)
-
-        val layoutInflater = LayoutInflater.from(context)
-        popupMenu.menu.forEach {
-            val itemView = FeedOptionMenuItemBinding
-                .inflate(layoutInflater, binding.gContent, false)
-            itemView.icon.setImageDrawable(it.icon)
-            itemView.title.text = it.title
-            itemView.root.id = it.itemId
-            itemView.root.setOnClickListener(this::onViewClick)
-            binding.gContent.addView(itemView.root)
-        }
-
-        setContentView(binding.root)
     }
 
     private fun onViewClick(view: View) {
@@ -60,6 +68,7 @@ class FeedOptionMenu(context: Context) : BottomSheetDialog(context) {
     }
 
     fun showWithPayload(
+        fgManager: FragmentManager,
         holder: FeedItemViewHolder,
         pos: Int,
         payload: ArticleEntity
@@ -67,13 +76,18 @@ class FeedOptionMenu(context: Context) : BottomSheetDialog(context) {
         this.holder = holder
         this.position = pos
         this.payload = payload
-        show()
+        show(fgManager, "menu")
     }
 
-    override fun show() {
-        super.show()
-        binding.tvTitle.text = payload?.title
-        binding.ivThumbnail.loadImageWithGlide(payload?.enclosure)
+    override fun onResume() {
+        super.onResume()
+
+        onShowAction?.invoke(this)
+
+        binding?.run {
+            tvTitle.text = payload?.title
+            ivThumbnail.loadImageWithGlide(payload?.enclosure)
+        }
     }
 
     fun setOnMenuClickListener(action: (holder: FeedItemViewHolder, pos: Int, payload: ArticleEntity, view: View) -> Unit) {
@@ -84,11 +98,9 @@ class FeedOptionMenu(context: Context) : BottomSheetDialog(context) {
     }
 
     fun getMenuBinding(@IdRes id: Int) =
-        binding.gContent.findViewById<View>(id)?.let { FeedOptionMenuItemBinding.bind(it) }
+        binding?.gContent?.findViewById<View>(id)?.let { FeedOptionMenuItemBinding.bind(it) }
 
-    fun onshow(action: FeedOptionMenu.()-> Unit){
-        setOnShowListener {
-            action.invoke(this)
-        }
+    fun onShow(action: FeedOptionMenu.() -> Unit) {
+        onShowAction = action
     }
 }

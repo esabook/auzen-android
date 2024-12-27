@@ -49,6 +49,7 @@ class PlayerFragment : BottomSheetDialogFragment() {
 
     lateinit var player: PlayerView
     private lateinit var dragHelper: ItemTouchHelper
+    private var behavior: BottomSheetBehavior<View>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -94,9 +95,9 @@ class PlayerFragment : BottomSheetDialogFragment() {
         }
 
         binding?.root?.parent?.let {
-            val behavior = BottomSheetBehavior.from(it as View)
-            behavior.addBottomSheetCallback(bottomSheetCallback)
-            behavior.isFitToContents = false
+            behavior = BottomSheetBehavior.from(it as View)
+            behavior!!.addBottomSheetCallback(bottomSheetCallback)
+            behavior!!.isFitToContents = true
 
             val treeObserver = object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
@@ -356,6 +357,14 @@ class PlayerFragment : BottomSheetDialogFragment() {
         model.itemAdapter.dragHelper = dragHelper
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (model.itemAdapter.itemCount == 0) {
+            behavior!!.state = BottomSheetBehavior.STATE_EXPANDED
+        } else {
+            behavior!!.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        }
+    }
     private fun shufflePlaylist() {
         App.db.launchIo {
 

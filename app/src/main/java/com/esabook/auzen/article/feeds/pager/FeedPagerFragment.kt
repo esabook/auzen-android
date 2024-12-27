@@ -11,7 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.paging.LoadState
@@ -39,7 +39,6 @@ import com.esabook.auzen.ui.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,7 +53,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
     private lateinit var player: PlayerView
 
-    private var queryFlow: MutableStateFlow<String?>? = null
+    private var queryFlow: MutableLiveData<String?>? = null
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,7 +61,7 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
 
         lifecycleScope.launch {
             progressDialog = ProgressDialog(requireContext())
-            feedOptionMenu = FeedOptionMenu(requireContext())
+            feedOptionMenu = FeedOptionMenu()
             player = PlayerView(FrameLayout(requireContext()))
         }
         binding.rvData.adapter = model.itemAdapter
@@ -119,17 +118,17 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
         queryFlow?.value?.let {
             model.searchQueryAction.invoke(it)
         }
-        queryFlow?.asLiveData()?.observe(viewLifecycleOwner, this::onQueryObserver)
+        queryFlow?.observe(viewLifecycleOwner, this::onQueryObserver)
         super.onResume()
     }
 
     override fun onPause() {
-        queryFlow?.asLiveData()?.removeObserver(this::onQueryObserver)
+        queryFlow?.removeObserver(this::onQueryObserver)
         super.onPause()
 
     }
 
-    fun setQueryDispatcher(queryFlow: MutableStateFlow<String?>) {
+    fun setQueryDispatcher(queryFlow: MutableLiveData<String?>) {
         this.queryFlow = queryFlow
     }
 
@@ -165,10 +164,10 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
                     if (payload !is ArticleEntity || holder !is FeedItemViewHolder)
                         return@OnItemClickListener
 
-                    feedOptionMenu.showWithPayload(holder, pos, payload)
+                    feedOptionMenu.showWithPayload(parentFragmentManager, holder, pos, payload)
                 }
 
-            feedOptionMenu.onshow {
+            feedOptionMenu.onShow {
                 lifecycleScope.launch {
                     getMenuBinding(R.id.sc_mark_as_read)?.let { m ->
                         if (payload?.isUnread == true) {

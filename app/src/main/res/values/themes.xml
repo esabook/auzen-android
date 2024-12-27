@@ -14,7 +14,6 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:isLightTheme" tools:targetApi="q">true</item>
@@ -30,10 +29,13 @@
 
     <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="paddingTopSystemWindowInsets">false</item>
     </style>
 
     <style name="ModalBottomSheetDialog" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="shapeAppearance">@style/ShapeRoundedTop32dp</item>
+        <item name="behavior_fitToContents">true</item>
     </style>
 
 </resources>
