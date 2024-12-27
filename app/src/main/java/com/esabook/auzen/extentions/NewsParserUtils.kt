@@ -75,6 +75,7 @@ object NewsParserUtils {
             val content = response.body.string()
             getArticle(redirectedLink, content)
         } catch (e: Exception) {
+            Timber.e(link)
             Timber.e(e)
             null
         }
