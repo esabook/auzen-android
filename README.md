@@ -13,13 +13,13 @@
 
 ---
 Screenshoot
-
-<img src="doc/capture (1).jpg" height="300px">
-<img src="doc/capture (2).jpg" height="300px">
-<img src="doc/capture (3).jpg" height="300px">
-<img src="doc/capture (4).jpg" height="300px">
-<img src="doc/capture (5).jpg" height="300px">
-
+<div align="center">
+<img src="doc/capture (1).jpg" width="19%">
+<img src="doc/capture (2).jpg" width="19%">
+<img src="doc/capture (3).jpg" width="19%">
+<img src="doc/capture (4).jpg" width="19%">
+<img src="doc/capture (5).jpg" width="19%">
+</div>
 
 
 ---
