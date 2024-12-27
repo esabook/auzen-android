@@ -30,17 +30,11 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
         val payload = getItem(position)
         if (holder is FeedItemViewHolder && payload is FeedListItem.Item) {
             holder.setData(payload.articleEntity)
-            holder.itemView.setOnLongClickListener {
-                onLongItemClickListener?.onClick(
-                    holder,
-                    position,
-                    payload.articleEntity
-                )
-                false
-            }
+
+            holder.itemView.setOnLongClickListener { onLongClick(holder, position, payload) }
+            holder.binding.ivMore.setOnClickListener { holder.itemView.performLongClick() }
             holder.itemView.setOnClickListener { onClick(holder, position, payload.articleEntity) }
-        }
-        if (holder is FeedItemHeaderViewHolder && payload is FeedListItem.Separator) {
+        } else if (holder is FeedItemHeaderViewHolder && payload is FeedListItem.Separator) {
             holder.setData(payload.letter)
         }
     }
@@ -50,6 +44,19 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
         if (holder is FeedItemViewHolder) {
             holder.notifyRecycled()
         }
+    }
+
+    private fun onLongClick(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payload: FeedListItem.Item
+    ): Boolean {
+        onLongItemClickListener?.onClick(
+            holder,
+            position,
+            payload.articleEntity
+        )
+        return false
     }
 
     override fun onClick(holder: RecyclerView.ViewHolder, position: Int, payload: Any?) {
@@ -102,7 +109,7 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FeedListItem>() {
             override fun areItemsTheSame(oldItem: FeedListItem, newItem: FeedListItem): Boolean {
                 return if (oldItem is FeedListItem.Item && newItem is FeedListItem.Item) {
-                     oldItem.articleEntity.guid == newItem.articleEntity.guid
+                    oldItem.articleEntity.guid == newItem.articleEntity.guid
 
                 } else if (oldItem is FeedListItem.Separator && newItem is FeedListItem.Separator) {
                     oldItem.letter == newItem.letter
