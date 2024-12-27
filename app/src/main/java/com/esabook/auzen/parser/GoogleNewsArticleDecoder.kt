@@ -4,6 +4,7 @@ import com.esabook.auzen.data.api.Api
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import okhttp3.Headers
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -155,6 +156,19 @@ object GoogleNewsArticleDecoder {
                 decodingParamsResponse["base64_str"] as String
             )
             decodedUrlResponse
+        } catch (e: Exception) {
+            mapOf(
+                "status" to false,
+                "message" to "Error in decodeGoogleNewsUrl: ${e.message}"
+            )
+        }
+    }
+
+    fun decodeGoogleAlertUrl(sourceUrl: String): Map<String, Any> {
+        return try {
+            val url: String =
+                sourceUrl.toHttpUrlOrNull()?.queryParameterValues("url")?.firstOrNull()!!
+            mapOf("status" to true, "decoded_url" to url)
         } catch (e: Exception) {
             mapOf(
                 "status" to false,

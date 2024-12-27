@@ -46,9 +46,22 @@ object NewsParserUtils {
                         return@withContext getArticle(url)
                     }
 
-                } else {
+                } else if (redirectedLink.contains("/rss/articles")) {
                     Timber.d("start parsing with GoogleNewsArticleDecoder url: %s", link)
                     val newsDecoded = GoogleNewsArticleDecoder.decodeGoogleNewsUrl(link)
+                    if (newsDecoded["status"] == true) {
+                        val url = newsDecoded["decoded_url"] as String
+
+                        if (url.isNotBlank() && (url != redirectedLink || url != link)) {
+                            Timber.d("%s url: %s", id, url)
+                            return@withContext getArticle(url)
+                        }
+                    } else {
+                        Timber.e(Gson().toJson(newsDecoded))
+                    }
+                } else if (redirectedLink.contains("/url?")) {
+                    Timber.d("start parsing with decodeGoogleAlertUrl url: %s", link)
+                    val newsDecoded = GoogleNewsArticleDecoder.decodeGoogleAlertUrl(link)
                     if (newsDecoded["status"] == true) {
                         val url = newsDecoded["decoded_url"] as String
 
