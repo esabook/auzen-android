@@ -2,6 +2,7 @@ package com.esabook.auzen.article.readview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -249,6 +250,20 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
             ): Boolean {
                 b.progressScroll.max = b.web.getTotalContentHeight() - view!!.height
                 request?.url?.toString()?.let {
+                    if (it.contains("intent") && isResumed) {
+                        try {
+                            requireContext().startActivity(
+                                Intent.parseUri(
+                                    it,
+                                    Intent.URI_INTENT_SCHEME
+                                )
+                            )
+                        } catch (e: Exception) {
+                            Timber.w(e)
+                        }
+                        return true
+                    }
+
                     model.articleLink = it
                     if (model.readibilityModeOn.value == true) {
                         model.generateArticle()
