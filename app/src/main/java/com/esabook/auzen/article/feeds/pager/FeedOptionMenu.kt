@@ -10,12 +10,14 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.text.parseAsHtml
 import androidx.core.view.forEach
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.R
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedOptionMenuBinding
 import com.esabook.auzen.databinding.FeedOptionMenuItemBinding
 import com.esabook.auzen.extentions.loadImageWithGlide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class FeedOptionMenu : BottomSheetDialogFragment() {
@@ -83,7 +85,9 @@ class FeedOptionMenu : BottomSheetDialogFragment() {
     override fun onResume() {
         super.onResume()
 
-        onShowAction?.invoke(this)
+        lifecycleScope.launch {
+            onShowAction?.invoke(this@FeedOptionMenu)
+        }
 
         binding?.run {
             tvTitle.text = payload?.title?.parseAsHtml()

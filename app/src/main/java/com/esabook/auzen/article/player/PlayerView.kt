@@ -9,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import com.esabook.auzen.App
 import com.esabook.auzen.R
 import com.esabook.auzen.audio.tts.TTSManager
@@ -23,7 +22,6 @@ import com.esabook.auzen.extentions.layoutInflater
 import com.esabook.auzen.extentions.post2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -46,7 +44,7 @@ class PlayerView(viewGroup: ViewGroup) {
         get() = mPlayerStateLiveData
 
     val progressPercent: LiveData<Int>
-        get() = mProgressPercent.asLiveData()
+        get() = mProgressPercent
 
     val speakLink: String?
         get() = mArticleEntity?.link
@@ -96,7 +94,7 @@ class PlayerView(viewGroup: ViewGroup) {
 
     fun getView(): View? {
 
-        if (mViewGroup.get() == null)
+        if (mViewGroup.get() == null || mViewGroup.get()?.isAttachedToWindow != true)
             return null
 
         if (binding == null) {
@@ -120,13 +118,13 @@ class PlayerView(viewGroup: ViewGroup) {
 
                 root.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                     override fun onViewAttachedToWindow(p0: View) {
-                        progressPercent.observeForever(this@PlayerView::invalidateProgress)
-                        playerStateLiveData.observeForever(this@PlayerView::invalidateObserver)
+                        mProgressPercent.observeForever(this@PlayerView::invalidateProgress)
+                        mPlayerStateLiveData.observeForever(this@PlayerView::invalidateObserver)
                     }
 
                     override fun onViewDetachedFromWindow(p0: View) {
                         progressPercent.removeObserver(this@PlayerView::invalidateProgress)
-                        playerStateLiveData.removeObserver(this@PlayerView::invalidateObserver)
+                        mPlayerStateLiveData.removeObserver(this@PlayerView::invalidateObserver)
                     }
 
                 })
@@ -200,7 +198,7 @@ class PlayerView(viewGroup: ViewGroup) {
             mArticleEntity = null
             lastDoneID = -1
             totalChar = 0L
-            mProgressPercent.tryEmit(0)
+            mProgressPercent.postValue(0)
         }
 
         private var inited = false
@@ -222,7 +220,7 @@ class PlayerView(viewGroup: ViewGroup) {
         /**
          * 100% based
          */
-        private val mProgressPercent = MutableStateFlow(0)
+        private val mProgressPercent = MutableLiveData(0)
 
         private var utteranceProgressListener = object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String) {
@@ -232,7 +230,7 @@ class PlayerView(viewGroup: ViewGroup) {
 
             override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
                 currentCharIndex += end - start
-                mProgressPercent.tryEmit((currentCharIndex * 100 / totalChar).toInt())
+                mProgressPercent.postValue((currentCharIndex * 100 / totalChar).toInt())
             }
 
             override fun onDone(utteranceId: String) {
@@ -249,7 +247,7 @@ class PlayerView(viewGroup: ViewGroup) {
 
 
         private fun speakNextParagraph() {
-            mProgressPercent.tryEmit(getProgress())
+            mProgressPercent.postValue(getProgress())
 
             val nextId = lastDoneID + 1
             val nextQueue = speakQueue.getOrNull(nextId)

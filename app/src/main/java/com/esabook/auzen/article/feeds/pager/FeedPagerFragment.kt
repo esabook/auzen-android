@@ -168,25 +168,23 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
                 }
 
             feedOptionMenu.onShow {
-                lifecycleScope.launch {
-                    getMenuBinding(R.id.sc_mark_as_read)?.let { m ->
-                        if (payload?.isUnread == true) {
-                            m.title.setText(R.string.mark_as_read)
-                            m.icon.setImageResource(R.drawable.ic_read_check)
-                        } else {
-                            m.title.setText(R.string.mark_as_unread)
-                            m.icon.setImageResource(R.drawable.ic_read_uncheck)
-                        }
+                getMenuBinding(R.id.sc_mark_as_read)?.let { m ->
+                    if (payload?.isUnread == true) {
+                        m.title.setText(R.string.mark_as_read)
+                        m.icon.setImageResource(R.drawable.ic_read_check)
+                    } else {
+                        m.title.setText(R.string.mark_as_unread)
+                        m.icon.setImageResource(R.drawable.ic_read_uncheck)
                     }
+                }
 
-                    getMenuBinding(R.id.sc_add_to_playlist)?.let { m ->
-                        if (payload?.isPlayListQueue == true) {
-                            m.title.setText(R.string.remove_from_speech_queue)
-                            m.icon.setImageResource(R.drawable.ic_baseline_bookmark_remove)
-                        } else {
-                            m.title.setText(R.string.add_to_speech_queue)
-                            m.icon.setImageResource(R.drawable.ic_baseline_bookmark_add)
-                        }
+                getMenuBinding(R.id.sc_add_to_playlist)?.let { m ->
+                    if (payload?.isPlayListQueue == true) {
+                        m.title.setText(R.string.remove_from_speech_queue)
+                        m.icon.setImageResource(R.drawable.ic_baseline_bookmark_remove)
+                    } else {
+                        m.title.setText(R.string.add_to_speech_queue)
+                        m.icon.setImageResource(R.drawable.ic_baseline_bookmark_add)
                     }
                 }
             }
@@ -257,12 +255,15 @@ class FeedPagerFragment : Fragment(R.layout.feed_pager_fragment) {
                     R.id.sc_open_browser -> {
                         context?.openLinkInExternalBrowser(payload.link)
                     }
+
                     R.id.sc_share_link_external -> {
                         context?.shareTextToExternal(payload.link)
                     }
+
                     R.id.sc_copy_link -> {
                         context?.copyToClipboard(payload.link)
                     }
+
                     R.id.sc_delete -> {
                         model.delete(payload)
                     }
