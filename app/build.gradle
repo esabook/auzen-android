@@ -149,6 +149,14 @@ dependencies {
 
     implementation 'io.sentry:sentry-android:7.19.1'
 
+//    implementation 'com.google.android.gms:play-services-tflite-java:16.4.0'
+//    implementation 'com.google.android.gms:play-services-tflite-gpu:16.4.0'
+//    implementation 'com.google.android.gms:play-services-tflite-support:16.4.0'
+    implementation 'org.tensorflow:tensorflow-lite:2.16.1'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.4.4'
+    implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:2.16.1'
+    implementation 'com.google.android.gms:play-services-tflite-java:16.4.0'
+
 
     // debug tool
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'

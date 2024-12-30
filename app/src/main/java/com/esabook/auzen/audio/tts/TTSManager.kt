@@ -12,7 +12,8 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import timber.log.Timber
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.Locale
+import java.util.Random
 
 
 object TTSManager {
@@ -44,15 +45,17 @@ object TTSManager {
         }
 
     var currentVoice: Voice? = null
-    set(value) {
-        field = value
-        if (field != null){
-            textToSpeech?.voice = field
+        set(value) {
+            field = value
+            if (field != null) {
+                textToSpeech?.voice = field
+            }
         }
-    }
 
 
     private var textToSpeech: TextToSpeech? = null
+
+    private var textToSpeech2: TTSManager2? = null
 
     var language = Locale.forLanguageTag("ID")
 
@@ -119,30 +122,53 @@ object TTSManager {
         }
     }
 
-    fun initSpeech(context: Context) {
-        if (textToSpeech != null) {
+    /**
+     * version: 1 = TextToSpeech local, 2 = Tensorflow model
+     */
+    fun initSpeech(context: Context, version: Int = 2) {
+        if ((textToSpeech != null && version == 1) || (textToSpeech2 != null && version == 2)) {
             throw IllegalStateException("Please call stop before init")
         }
 
-        textToSpeech = TextToSpeech(context) { status ->
-            Timber.i("TextToSpeech onInit status = $status")
-            if (status == TextToSpeech.SUCCESS) {
-                textToSpeech?.getSpeechParams()
+        if (version == 1) {
+            textToSpeech = TextToSpeech(context) { status ->
+                Timber.i("TextToSpeech onInit status = $status")
+                if (status == TextToSpeech.SUCCESS) {
+                    textToSpeech?.getSpeechParams()
 
-                val result = textToSpeech?.setLanguage(language)
-                if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED
-                ) {
-                    context.installMissingData()
-                    return@TextToSpeech
+                    val result = textToSpeech?.setLanguage(language)
+                    if (result == TextToSpeech.LANG_MISSING_DATA
+                        || result == TextToSpeech.LANG_NOT_SUPPORTED
+                    ) {
+                        context.installMissingData()
+                        return@TextToSpeech
+                    }
+
+                    textToSpeech?.setAudioAttributes(audioAttrs.build())
+                    textToSpeech?.setPitch(currentPitch)
+                    textToSpeech?.setSpeechRate(currentSpeed)
                 }
 
-                textToSpeech?.setAudioAttributes(audioAttrs.build())
-                textToSpeech?.setPitch(currentPitch)
-                textToSpeech?.setSpeechRate(currentSpeed)
+                this.context = WeakReference(context)
             }
+        } else if (version == 2) {
+            TTSManager2.instance?.init(context)
+            textToSpeech2 = TTSManager2.instance
+            TtsStateDispatcher.instance?.addListener(object : OnTtsStateListener {
+                override fun onTtsReady() {
+//                    speakBtn.setEnabled(true)
+                }
 
-            this.context = WeakReference(context)
+                override fun onTtsStart(text: String?, playId: String) {
+                    utteranceProgressListener?.onStart(playId)
+                    mTtsState.postValue(TtsState.PLAY)
+                }
+
+                override fun onTtsStop(playId: String) {
+                    mTtsState.postValue(TtsState.STOP)
+                    utteranceProgressListener?.onDone(playId)
+                }
+            })
         }
     }
 
@@ -193,14 +219,23 @@ object TTSManager {
 
         } else {
             val text = inputText
-            val state = textToSpeech?.speak(
-                text,
-                TextToSpeech.QUEUE_FLUSH,
-                null,
-                playId
-            )
-            Timber.i("speak state : $state")
-            textToSpeech?.setOnUtteranceProgressListener(mUtteranceProgressListener)
+            if (textToSpeech != null) {
+                val state = textToSpeech?.speak(
+                    text,
+                    TextToSpeech.QUEUE_FLUSH,
+                    null,
+                    playId
+                )
+                Timber.i("speak state use TTS_1: $state")
+                textToSpeech?.setOnUtteranceProgressListener(mUtteranceProgressListener)
+            }
+
+            if (textToSpeech2 != null) {
+                val state = textToSpeech2?.speak(
+                    text, currentSpeed, false, playId
+                )
+                Timber.i("speak state use TTS_2: $state")
+            }
         }
     }
 
@@ -230,6 +265,7 @@ object TTSManager {
 
     fun stop() {
         textToSpeech?.stop()
+        textToSpeech2?.stopTts()
         mTtsState.postValue(TtsState.STOP)
     }
 
@@ -237,5 +273,6 @@ object TTSManager {
         stop()
         textToSpeech?.shutdown()
         textToSpeech = null
+        textToSpeech2 = null
     }
 }
