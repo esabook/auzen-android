@@ -214,16 +214,18 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
                 if (b.toolbar.isGone && oldY > y) {
                     b.toolbar.isVisible = true
                     b.gButton.isVisible = true
+                    updateProgressScrollMax()
 
                 } else if (b.toolbar.isVisible && oldY < y) {
                     b.toolbar.isGone = true
                     b.gButton.isGone = true
+                    updateProgressScrollMax()
                 }
             }
 
             b.progressScroll.apply {
                 if (max == 0) {
-                    max = b.web.getTotalContentHeight() - b.web.height
+                    updateProgressScrollMax()
                 }
                 progress = y
             }
@@ -239,16 +241,15 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 b.progressHorizontal.hide()
-                b.progressScroll.max = b.web.getTotalContentHeight() - view!!.height
                 b.swipeRefresh.isRefreshing = false
-
+                updateProgressScrollMax()
             }
 
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
-                b.progressScroll.max = b.web.getTotalContentHeight() - view!!.height
+                updateProgressScrollMax()
                 request?.url?.toString()?.let {
                     if (it.contains("intent") && isResumed) {
                         try {
@@ -414,6 +415,12 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
         }
 
         binding.web.addOnScrollChanged(this::onWebScrollListener)
+    }
+
+    private fun updateProgressScrollMax() {
+        binding.run {
+            progressScroll.max = web.getTotalContentHeight() - web.height
+        }
     }
 
     private fun renderToolbar(url: String?) = binding.let { b ->

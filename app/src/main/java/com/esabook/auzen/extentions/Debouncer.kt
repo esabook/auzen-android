@@ -9,7 +9,7 @@ class Debouncer(private val scope: CoroutineScope) {
 
     private var debounceJob: Job? = null
 
-    fun create(interval: Long, action: () -> Unit): () -> Unit {
+    fun create(interval: Long, action: suspend () -> Unit): () -> Unit {
         return {
             debounce(interval, action)
         }
@@ -25,7 +25,7 @@ class Debouncer(private val scope: CoroutineScope) {
         }
     }
 
-    fun debounce(interval: Long, action: () -> Unit) {
+    fun debounce(interval: Long, action: suspend () -> Unit) {
         debounceJob?.cancel()
         debounceJob = scope.launch {
             delay(interval)
