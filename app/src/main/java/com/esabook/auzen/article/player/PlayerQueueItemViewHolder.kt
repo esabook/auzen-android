@@ -6,9 +6,21 @@ import com.bumptech.glide.Glide
 import com.esabook.auzen.App
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.PlayerQueueItemViewHolderBinding
-import com.esabook.auzen.extentions.*
+import com.esabook.auzen.extentions.OgParser
+import com.esabook.auzen.extentions.loadImageWithGlide
+import com.esabook.auzen.extentions.removeDebris
+import com.esabook.auzen.extentions.removeNewLine
+import com.esabook.auzen.extentions.toDate
+import com.esabook.auzen.extentions.toStringWithPattern
 import com.esabook.auzen.ui.ViewHolder
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 
 class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemViewHolderBinding>(
     parent,
@@ -69,7 +81,7 @@ class PlayerQueueItemViewHolder(parent: ViewGroup) : ViewHolder<PlayerQueueItemV
                     sourceTitle = ogArticle?.siteName
                 )
 
-                App.db.articleDao().update(newData)
+                App.db.articleDao().updateWithLastModifiedTime(newData)
 
                 if (newData.enclosure != null && newData.enclosure != data.enclosure)
                     setData(newData)

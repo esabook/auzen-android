@@ -418,12 +418,14 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     }
 
     private fun updateProgressScrollMax() {
-        binding.run {
+        kotlin.runCatching { binding }.getOrNull()?.run {
             progressScroll.max = web.getTotalContentHeight() - web.height
         }
     }
 
-    private fun renderToolbar(url: String?) = binding.let { b ->
+    private fun renderToolbar(url: String?) = kotlin.runCatching { binding }
+        .getOrNull()
+        ?.let { b ->
         val uri = url?.toHttpUrlOrNull()
         val mUrl = NewsParserUtils.getFaviconUrl(url ?: "")
 
@@ -451,11 +453,10 @@ class ReadFragment : Fragment(R.layout.read_fragment) {
     override fun onDestroyView() {
         try {
             binding.web.stopLoading()
-            binding.web.loadUrl("about:blank")
             binding.web.removeAllViews()
             binding.web.destroy()
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.w(e)
         }
 
         super.onDestroyView()

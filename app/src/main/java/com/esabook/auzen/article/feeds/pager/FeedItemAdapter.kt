@@ -130,9 +130,7 @@ class FeedItemAdapter : PagingDataAdapter<FeedListItem, RecyclerView.ViewHolder>
             }
 
             private fun isArticleSame(old: ArticleEntity, new: ArticleEntity): Boolean {
-                return old.isUnread == new.isUnread
-                        && old.isPlayListQueue == new.isPlayListQueue
-                        && old.playListOrder == new.playListOrder
+                return old.lastModifiedTime == new.lastModifiedTime
             }
 
         }

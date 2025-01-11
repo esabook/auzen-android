@@ -6,10 +6,24 @@ import com.bumptech.glide.Glide
 import com.esabook.auzen.App
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.databinding.FeedViewHolderBinding
-import com.esabook.auzen.extentions.*
+import com.esabook.auzen.extentions.NewsParserUtils
+import com.esabook.auzen.extentions.OgParser
+import com.esabook.auzen.extentions.loadImageWithGlide
+import com.esabook.auzen.extentions.removeDebris
+import com.esabook.auzen.extentions.toDate
+import com.esabook.auzen.extentions.toStringWithPattern
 import com.esabook.auzen.ui.ViewHolder
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import timber.log.Timber
 
 class FeedItemViewHolder(parent: ViewGroup) :
     ViewHolder<FeedViewHolderBinding>(parent, FeedViewHolderBinding::inflate) {
@@ -69,13 +83,13 @@ class FeedItemViewHolder(parent: ViewGroup) :
 
     var thumbnailJob: Job? = null
     private fun loadThumbnail(data: ArticleEntity?) {
-        if (data?.link == null){
+        if (data?.link == null) {
             notifyRecycled()
             return
         }
         thumbnailJob = mainScope.launch {
-            withContext(Dispatchers.IO){
-                delay(500)
+            withContext(Dispatchers.IO) {
+                delay(200)
                 val realNews = NewsParserUtils.getArticle(data.link)
                     ?: throw CancellationException("no realNews")
 
@@ -84,10 +98,15 @@ class FeedItemViewHolder(parent: ViewGroup) :
                     link = ogArticle?.url,
                     description = data.description ?: ogArticle?.description,
                     enclosure = ogArticle?.image,
-                    sourceTitle = ogArticle?.siteName
+                    sourceTitle = ogArticle?.siteName,
                 )
 
-                App.db.articleDao().update(newData)
+                if (newData.link?.length == data.link.length
+                    && data.enclosure?.length == newData.enclosure?.length
+                )
+                    return@withContext
+
+                App.db.articleDao().updateWithLastModifiedTime(newData)
                 if (newData.enclosure != null && newData.enclosure != data.enclosure)
                     setData(newData)
             }
@@ -100,8 +119,12 @@ class FeedItemViewHolder(parent: ViewGroup) :
         thumbnailJob?.cancel()
         thumbnailJob = null
         binding.run {
-            Glide.with(ivFavicon).clear(ivFavicon)
-            Glide.with(ivThumbnail).clear(ivThumbnail)
+            try {
+                Glide.with(itemView).clear(ivFavicon)
+                Glide.with(itemView).clear(ivThumbnail)
+            } catch (e: Exception) {
+                Timber.w(e)
+            }
         }
 
     }
