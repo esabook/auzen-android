@@ -50,7 +50,10 @@ data class ArticleEntity(
     var isPlayListQueue: Boolean = false,
 
     @ColumnInfo(name = "playlist_order", defaultValue = "0")
-    var playListOrder: Long = 0L
+    var playListOrder: Long = 0L,
+
+    @ColumnInfo(name = "last_modified_time")
+    var lastModifiedTime: String? = null
 
 )
 

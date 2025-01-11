@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ArticleQueueDao {
 
-    @Query("UPDATE article SET is_playlist_queue = :asPlaylistQueue, playlist_order = :timeUpdate WHERE guid = :guid")
+    @Query("UPDATE article SET is_playlist_queue = :asPlaylistQueue, playlist_order = :timeUpdate, last_modified_time = CURRENT_TIMESTAMP WHERE guid = :guid")
     fun update(guid: String, asPlaylistQueue: Boolean, timeUpdate: Long = System.currentTimeMillis())
 
     @Query("SELECT * FROM article WHERE is_playlist_queue = 1 ORDER by playlist_order ASC")

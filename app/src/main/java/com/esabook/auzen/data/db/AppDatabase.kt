@@ -10,13 +10,17 @@ import com.esabook.auzen.data.db.dao.RssDao
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import com.esabook.auzen.data.db.entity.ParserDictEntity
 import com.esabook.auzen.data.db.entity.RssEntity
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 
 @Database(
     entities = [RssEntity::class, ArticleEntity::class, ParserDictEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 2, to = 3)]
+    autoMigrations = [AutoMigration(from = 3, to = 4)]
 )
 abstract class AppDatabase : RoomDatabase() {
     val ioScope = MainScope() + Dispatchers.IO

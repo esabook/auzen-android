@@ -2,8 +2,14 @@ package com.esabook.auzen.data.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy.Companion.IGNORE
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.esabook.auzen.data.db.entity.ArticleEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -11,6 +17,10 @@ import kotlinx.coroutines.flow.Flow
 interface ArticleDao {
     @Query("SELECT * FROM article ORDER by pub_date_timestamp DESC")
     fun getAll(): PagingSource<Int, ArticleEntity>
+
+    @RawQuery(observedEntities = [ArticleEntity::class])
+    fun getAllByQuery(query: SupportSQLiteQuery): PagingSource<Int, ArticleEntity>
+
 
     @Query("SELECT * FROM article WHERE guid IN (:guids)")
     fun loadAllByIds(guids: IntArray): LiveData<List<ArticleEntity>>
@@ -30,7 +40,13 @@ interface ArticleDao {
     @Update(entity = ArticleEntity::class, onConflict = IGNORE)
     fun update(vararg article: ArticleEntity)
 
-    @Query("UPDATE article SET description = :desc, enclosure = :enclosure, source_title = :sourceTitle WHERE guid = :guid ")
+    fun updateWithLastModifiedTime(vararg article: ArticleEntity) {
+        val articleList = article.asList()
+        articleList.forEach { it.lastModifiedTime = System.currentTimeMillis().toString() }
+        update(*articleList.toTypedArray())
+    }
+
+    @Query("UPDATE article SET description = :desc, enclosure = :enclosure, source_title = :sourceTitle, last_modified_time = CURRENT_TIMESTAMP WHERE guid = :guid ")
     fun updateShort(guid: String, desc: String?, enclosure: String?, sourceTitle: String?)
 
     @Delete
@@ -39,10 +55,10 @@ interface ArticleDao {
     @Query("DELETE from article WHERE rss_guid = :rssGuid")
     fun deleteAllByRssGuid(vararg rssGuid: String): Int
 
-    @Query("UPDATE article SET is_unread = :isUnRead WHERE guid = :guid")
+    @Query("UPDATE article SET is_unread = :isUnRead, last_modified_time = CURRENT_TIMESTAMP WHERE guid = :guid")
     fun markAsRead(guid: String, isUnRead: Boolean): Int
 
-    @Query("UPDATE article SET is_unread = 0 WHERE guid == :guid OR link LIKE :link")
+    @Query("UPDATE article SET is_unread = 0, last_modified_time = CURRENT_TIMESTAMP WHERE guid == :guid OR link LIKE :link")
     fun markAsReadByGuidOrLink(guid: String, link: String): Int
 
 
