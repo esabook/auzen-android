@@ -35,6 +35,8 @@
 
     <style name="ModalBottomSheetDialog" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="shapeAppearance">@style/ShapeRoundedTop32dp</item>
+        <item name="shouldRemoveExpandedCorners">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeRoundedTop32dp</item>
         <item name="behavior_fitToContents">true</item>
     </style>
 

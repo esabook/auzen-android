@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updateMargins
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -166,9 +168,11 @@ class PlayerFragment : BottomSheetDialogFragment() {
                     binding?.progressCircular?.isIndeterminate = false
 
                 }
+
                 LOADING -> {
                     binding?.progressCircular?.isIndeterminate = true
                 }
+
                 else -> {
                     binding?.progressCircular?.isIndeterminate = false
                     binding?.btPlay?.setImageResource(R.drawable.ic_baseline_play_arrow)
@@ -364,7 +368,16 @@ class PlayerFragment : BottomSheetDialogFragment() {
         } else {
             behavior!!.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
+
+        requireDialog().findViewById<View>(com.google.android.material.R.id.container)?.apply {
+            fitsSystemWindows = false
+            updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                val dimen = resources.getDimensionPixelSize(R.dimen.dp_8)
+                updateMargins(left = dimen, right = dimen)
+            }
+        }
     }
+
     private fun shufflePlaylist() {
         App.db.launchIo {
 

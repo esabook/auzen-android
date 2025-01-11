@@ -41,7 +41,7 @@
                         android:layout_marginRight="@dimen/dp_16"
                         android:layout_marginBottom="90dp"
                         android:textColor="@color/black_80"
-                        android:textSize="@dimen/dp_28"
+                        android:textSize="34sp"
                         android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

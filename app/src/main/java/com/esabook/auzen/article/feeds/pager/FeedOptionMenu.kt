@@ -9,6 +9,8 @@ import androidx.annotation.IdRes
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.text.parseAsHtml
 import androidx.core.view.forEach
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updateMargins
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.esabook.auzen.R
@@ -92,6 +94,15 @@ class FeedOptionMenu : BottomSheetDialogFragment() {
         binding?.run {
             tvTitle.text = payload?.title?.parseAsHtml()
             ivThumbnail.loadImageWithGlide(payload?.enclosure)
+        }
+
+
+        requireDialog().findViewById<View>(com.google.android.material.R.id.container)?.apply {
+            fitsSystemWindows = false
+            updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                val dimen = resources.getDimensionPixelSize(R.dimen.dp_8)
+                updateMargins(left = dimen, right = dimen)
+            }
         }
     }
 
